@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public float speed = 3.0f;
+    public float moveSpeed = 2f;
+    public int health = 100;
     private Transform player;
 
     void Start()
@@ -14,9 +15,29 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        Vector3 direction = player.position - transform.position;
-        direction.Normalize();
-        transform.position += direction * speed * Time.deltaTime;
+        if (player != null)
+        {
+            Vector3 direction = (player.position - transform.position).normalized;
+            transform.position += direction * moveSpeed * Time.deltaTime;
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            GameManager.instance.ReduceHealth(10);
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+        if (health <= 0)
+        {
+            GameManager.instance.AddScore(100);
+            Destroy(gameObject);
+        }
     }
 }
 

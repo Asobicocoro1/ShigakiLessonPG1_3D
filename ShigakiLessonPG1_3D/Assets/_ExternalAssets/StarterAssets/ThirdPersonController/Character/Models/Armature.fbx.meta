@@ -11,21 +11,21 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: M_Arms
-    second: {fileID: 2100000, guid: bd674cf6402295b4c9e02a5d8dcfd3fc, type: 2}
+    second: {fileID: 2100000, guid: 528dcbc3678a1c144a73e762767f8096, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: M_Body
-    second: {fileID: 2100000, guid: d6e27001716af114b9e7e6b232a01792, type: 2}
+    second: {fileID: 2100000, guid: e42041a36990a2c44902d55acd0e97d0, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: M_Legs
-    second: {fileID: 2100000, guid: dc06b2b3f87110c4895538a0747c5696, type: 2}
+    second: {fileID: 2100000, guid: 6dd5a8af699411947b9c1a09ba833861, type: 2}
   materials:
     materialImportMode: 2
-    materialName: 2
-    materialSearch: 2
+    materialName: 0
+    materialSearch: 1
     materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
@@ -54,7 +54,7 @@ ModelImporter:
   meshes:
     lODScreenPercentages: []
     globalScale: 1
-    meshCompression: 0
+    meshCompression: 3
     addColliders: 0
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1

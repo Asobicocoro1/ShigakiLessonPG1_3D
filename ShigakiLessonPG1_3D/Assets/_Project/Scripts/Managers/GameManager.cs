@@ -6,7 +6,14 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    public string nextScene;
+
+    public int score = 0;
+    public int playerHealth = 100;
+    private bool isGameOver = false; // フィールドはプライベートのまま
+    public bool IsGameOver // 読み取り専用のプロパティを追加
+    {
+        get { return isGameOver; }
+    }
 
     private void Awake()
     {
@@ -21,20 +28,66 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void LoadScene(string loadingScene, string targetScene)
+    private void Start()
     {
-        nextScene = targetScene;
-        SceneManager.LoadScene(loadingScene);
+        UIManager.instance.ShowTitleScreen();
     }
 
-    public void GameOver()
+    private void Update()
     {
-        SceneManager.LoadScene("GameOver");
+        if (isGameOver && Input.GetKeyDown(KeyCode.R))
+        {
+            RestartGame();
+        }
     }
 
-    public void GameClear()
+    public void AddScore(int points)
     {
-        SceneManager.LoadScene("Clear");
+        score += points;
+        UIManager.instance.UpdateScoreText(score);
+    }
+
+    public void ReduceHealth(int damage)
+    {
+        playerHealth -= damage;
+        UIManager.instance.UpdateHealthBar(playerHealth);
+        if (playerHealth <= 0)
+        {
+            GameOver();
+        }
+    }
+
+    private void GameOver()
+    {
+        isGameOver = true;
+        UIManager.instance.ShowGameOverScreen();
+    }
+
+    public void StartGame()
+    {
+        isGameOver = false;
+        score = 0;
+        playerHealth = 100;
+        UIManager.instance.HideTitleScreen();
+        UIManager.instance.UpdateScoreText(score);
+        UIManager.instance.UpdateHealthBar(playerHealth);
+    }
+
+    public void RestartGame()
+    {
+        isGameOver = false;
+        score = 0;
+        playerHealth = 100;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // シーンのリロード
+        UIManager.instance.HideGameOverScreen();
+        UIManager.instance.UpdateScoreText(score);
+        UIManager.instance.UpdateHealthBar(playerHealth);
+    }
+
+    public void LoadScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
     }
 }
+
 

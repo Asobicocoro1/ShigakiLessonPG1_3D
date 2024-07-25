@@ -5,74 +5,64 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    public float jumpForce = 5f;
-    private float horizontalInput;
-    private float verticalInput;
-
-    private Animator animator;
+    public float jumpForce = 7f;
     private Rigidbody rb;
-    private bool isGrounded;
+    private Animator animator;
 
     void Start()
     {
-        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
     {
-        // 入力の取得
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
+        if (GameManager.instance.IsGameOver) // プロパティを使用して状態を確認
+            return;
 
-        // キャラクターの移動
-        Vector3 move = new Vector3(horizontalInput, 0, verticalInput) * moveSpeed * Time.deltaTime;
-        transform.Translate(move, Space.Self);
+        Move();
+        Jump();
+        Attack();
+    }
 
-        // Animatorパラメーターの設定
-        float speed = new Vector3(horizontalInput, 0, verticalInput).magnitude;
-        animator.SetFloat("speed", speed);
-
-        if (Input.GetButtonDown("Jump") && isGrounded)
-        {
-            Jump();
-        }
-
-        // ジャンプ関連のパラメーター設定
-        animator.SetBool("isJumping", !isGrounded);
-        animator.SetBool("isGrounded", isGrounded);
+    void Move()
+    {
+        float move = Input.GetAxis("Horizontal");
+        rb.velocity = new Vector3(move * moveSpeed, rb.velocity.y, 0);
+        animator.SetFloat("Speed", Mathf.Abs(move));
     }
 
     void Jump()
     {
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        isGrounded = false;
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (Input.GetButtonDown("Jump") && Mathf.Abs(rb.velocity.y) < 0.01f)
         {
-            isGrounded = true;
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            animator.SetTrigger("Jump");
         }
     }
 
-    // アニメーションイベントハンドラ
-    public void OnLand()
+    void Attack()
     {
-        // 着地時の処理をここに記述します
-        Debug.Log("着地しました！");
-        isGrounded = true;
+        if (Input.GetButtonDown("Fire1"))
+        {
+            animator.SetTrigger("Punch");
+        }
+        if (Input.GetButtonDown("Fire2"))
+        {
+            animator.SetTrigger("Kick");
+        }
     }
 
-    // アニメーションイベントハンドラ
-    public void OnFootstep()
+    void OnTriggerEnter(Collider other)
     {
-        // 足音の処理をここに記述します
-        Debug.Log("足音が鳴りました！");
-        // 足音の効果音を再生する場合など
+        if (other.CompareTag("Enemy"))
+        {
+            GameManager.instance.ReduceHealth(10);
+        }
     }
 }
+
+
 
 
 

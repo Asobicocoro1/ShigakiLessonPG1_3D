@@ -1,11 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform player; // �v���C���[��Transform
-    public Vector3 offset; // �J�����̃I�t�Z�b�g
-    public float sensitivity = 5.0f; // �J�����̉�]���x
-    public float smoothTime = 0.1f; // �J�����̃X���[�Y�Ǐ]����
+    public Transform player; // プレイヤーのTransform
+    public Vector3 offset; // カメラのオフセット
+    public float sensitivity = 5.0f; // カメラの回転感度
+    public float smoothTime = 0.1f; // カメラのスムーズ追従時間
 
     private Vector3 currentVelocity;
     private float rotationX = 0.0f;
@@ -14,37 +14,37 @@ public class CameraFollow : MonoBehaviour
     void Start()
     {
         offset = transform.position - player.position;
-        Cursor.lockState = CursorLockMode.Locked; // �}�E�X�J�[�\������ʒ����ɌŒ�
+        Cursor.lockState = CursorLockMode.Locked; // マウスカーソルを画面中央に固定
     }
 
     void LateUpdate()
     {
-        // �}�E�X�̓��͂��擾
+        // マウスの入力を取得
         rotationX += Input.GetAxis("Mouse X") * sensitivity;
         rotationY -= Input.GetAxis("Mouse Y") * sensitivity;
-        rotationY = Mathf.Clamp(rotationY, -35, 60); // ���������̉�]�͈͂𐧌�
+        rotationY = Mathf.Clamp(rotationY, -35, 60); // 垂直方向の回転範囲を制限
 
-        // �v���C���[�𒆐S�ɃJ��������]
+        // プレイヤーを中心にカメラを回転
         Quaternion rotation = Quaternion.Euler(rotationY, rotationX, 0);
         Vector3 targetPosition = player.position + rotation * offset;
 
-        // �J�����̈ʒu���X���[�Y�ɒǏ]
+        // カメラの位置をスムーズに追従
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, smoothTime);
 
-        // �J�������v���C���[����Ɍ���悤�ɂ���
+        // カメラがプレイヤーを常に見るようにする
         transform.LookAt(player.position);
     }
 }
 /*
- ���� `CameraFollow` �X�N���v�g�́AUnity �� `UnityEngine` ���O��Ԃɑ����邢�����̃N���X���g�p���Ă��܂��B�ȉ��ɁA�g�p����Ă��� `UnityEngine` �N���X���ڍׂɉ�����܂��B
+ この `CameraFollow` スクリプトは、Unity の `UnityEngine` 名前空間に属するいくつかのクラスを使用しています。以下に、使用されている `UnityEngine` クラスを詳細に解説します。
 
-### �g�p����Ă��� `UnityEngine` �N���X�̏ڍ�
+### 使用されている `UnityEngine` クラスの詳細
 
 #### 1. `Transform`
-- **����**: `Transform` �́A�Q�[���I�u�W�F�N�g�̈ʒu�A��]�A�X�P�[����\���N���X�ł��B���ׂẴQ�[���I�u�W�F�N�g�� `Transform` �R���|�[�l���g�������Ă��܂��B
-- **�g�p�ӏ�**: `player` �t�B�[���h�� `transform` �v���p�e�B�Ŏg�p�B
+- **説明**: `Transform` は、ゲームオブジェクトの位置、回転、スケールを表すクラスです。すべてのゲームオブジェクトは `Transform` コンポーネントを持っています。
+- **使用箇所**: `player` フィールドと `transform` プロパティで使用。
   ```csharp
-  public Transform player; // �v���C���[��Transform
+  public Transform player; // プレイヤーのTransform
   ...
   offset = transform.position - player.position;
   ...
@@ -54,50 +54,59 @@ public class CameraFollow : MonoBehaviour
   ```
 
 #### 2. `Vector3`
-- **����**: `Vector3` �́A3�����x�N�g���ix, y, z�j��\���\���̂ł��B�ʒu�A�����A���x�Ȃǂ�\�����邽�߂Ɏg�p����܂��B
-- **�g�p�ӏ�**: `offset`, `currentVelocity`, `targetPosition` �̌v�Z�ƁA`transform.position` �̐ݒ�Ɏg�p�B
+- **説明**: `Vector3` は、3次元ベクトル（x, y, z）を表す構造体です。位置、方向、速度などを表現するために使用されます。
+- **使用箇所**: `offset`, `currentVelocity`, `targetPosition` の計算と、`transform.position` の設定に使用。
   ```csharp
-  public Vector3 offset; // �J�����̃I�t�Z�b�g
+  public Vector3 offset; // カメラのオフセット
   private Vector3 currentVelocity;
   ...
   Vector3 targetPosition = player.position + rotation * offset;
   ```
 
 #### 3. `Quaternion`
-- **����**: `Quaternion` �́A��]��\�����邽�߂̍\���̂ł��B��]���I�C���[�p���]���Ɗp�x�Ƃ��ĕ\�����邱�Ƃ��ł��܂��B
-- **�g�p�ӏ�**: �J�����̉�]�̌v�Z�Ɏg�p�B
+- **説明**: `Quaternion` は、回転を表現するための構造体です。回転をオイラー角や回転軸と角度として表現することができます。
+- **使用箇所**: カメラの回転の計算に使用。
   ```csharp
   Quaternion rotation = Quaternion.Euler(rotationY, rotationX, 0);
-  ```
+  `
+``
+オイラー角（Euler angles）は、三次元ユークリッド空間中の2つの直交座標系の関係を表現する方法の一つです。これは、剛体の回転姿勢を独立な３つの角度で表す方法であり、力学やコンピュータグラフィックスでよく使われています¹。オイラー角は、以下の３つの角度で構成されます：
+
+1. **機首方位角（Heading Angle）**: 飛行機の機首がどの方向を向いているかを表す角度です。
+2. **ピッチ角（Attitude Angle）**: 飛行機の機体が上下方向をどのように傾いているかを表す角度です。
+3. **バンク角（Bank Angle）**: 飛行機の機体が左右方向に傾いているかを表す角度です。
+
+これらの角度を組み合わせて、剛体の回転姿勢を記述します。オイラー角は便利で分かりやすいため、航空工学やコンピュータグラフィックスで広く用いられています。特異姿勢やジンバルロックといった注意点もありますが、基本的な理解はこのようなものです。¹²
+
 
 #### 4. `Cursor`
-- **����**: `Cursor` �N���X�́A�}�E�X�J�[�\���̕\����Ԃ�ʒu�𐧌䂷�邽�߂̐ÓI�N���X�ł��B
-- **�g�p�ӏ�**: �}�E�X�J�[�\������ʒ����ɌŒ肷�邽�߂Ɏg�p�B
+- **説明**: `Cursor` クラスは、マウスカーソルの表示状態や位置を制御するための静的クラスです。
+- **使用箇所**: マウスカーソルを画面中央に固定するために使用。
   ```csharp
   Cursor.lockState = CursorLockMode.Locked;
   ```
 
 #### 5. `CursorLockMode`
-- **����**: `CursorLockMode` �́A�J�[�\���̃��b�N��Ԃ��`����񋓌^�ł��B`Locked`�A`Confined`�A`None` ��3�̃��[�h������܂��B
-- **�g�p�ӏ�**: �}�E�X�J�[�\������ʒ����ɌŒ肷�邽�߂̐ݒ�Ɏg�p�B
+- **説明**: `CursorLockMode` は、カーソルのロック状態を定義する列挙型です。`Locked`、`Confined`、`None` の3つのモードがあります。
+- **使用箇所**: マウスカーソルを画面中央に固定するための設定に使用。
   ```csharp
   Cursor.lockState = CursorLockMode.Locked;
   ```
 
 #### 6. `Mathf`
-- **����**: `Mathf` �N���X�́A���w�I�Ȋ֐���萔��񋟂���ÓI�N���X�ł��B�O�p�֐��A��ԁA��Βl�A�N�����v�Ȃǂ̊֐����܂܂�܂��B
-- **�g�p�ӏ�**: �J�����̐�����]�͈͂𐧌����邽�߂Ɏg�p�B
+- **説明**: `Mathf` クラスは、数学的な関数や定数を提供する静的クラスです。三角関数、補間、絶対値、クランプなどの関数が含まれます。
+- **使用箇所**: カメラの垂直回転範囲を制限するために使用。
   ```csharp
   rotationY = Mathf.Clamp(rotationY, -35, 60);
   ```
 
-### �N���X���Ƃ̏ڍׂȐ����Ǝg�p��
+### クラスごとの詳細な説明と使用例
 
 #### `Transform`
-- **����**: �Q�[���I�u�W�F�N�g�̈ʒu�A��]�A�X�P�[�����Ǘ��B
-- **�g�p��**:
+- **役割**: ゲームオブジェクトの位置、回転、スケールを管理。
+- **使用例**:
   ```csharp
-  public Transform player; // �v���C���[��Transform
+  public Transform player; // プレイヤーのTransform
   ...
   offset = transform.position - player.position;
   transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, smoothTime);
@@ -105,42 +114,42 @@ public class CameraFollow : MonoBehaviour
   ```
 
 #### `Vector3`
-- **����**: 3�����̃x�N�g���f�[�^�������B
-- **�g�p��**:
+- **役割**: 3次元のベクトルデータを扱う。
+- **使用例**:
   ```csharp
-  public Vector3 offset; // �J�����̃I�t�Z�b�g
-  private Vector3 currentVelocity; // �J�����̌��݂̑��x
+  public Vector3 offset; // カメラのオフセット
+  private Vector3 currentVelocity; // カメラの現在の速度
   ...
-  Vector3 targetPosition = player.position + rotation * offset; // �ڕW�ʒu���v�Z
+  Vector3 targetPosition = player.position + rotation * offset; // 目標位置を計算
   ```
 
 #### `Quaternion`
-- **����**: ��]��\�����邽�߂̍\���́B
-- **�g�p��**:
+- **役割**: 回転を表現するための構造体。
+- **使用例**:
   ```csharp
-  Quaternion rotation = Quaternion.Euler(rotationY, rotationX, 0); // ��]���v�Z
+  Quaternion rotation = Quaternion.Euler(rotationY, rotationX, 0); // 回転を計算
   ```
 
 #### `Cursor`
-- **����**: �}�E�X�J�[�\���̐���B
-- **�g�p��**:
+- **役割**: マウスカーソルの制御。
+- **使用例**:
   ```csharp
-  Cursor.lockState = CursorLockMode.Locked; // �}�E�X�J�[�\�������b�N
+  Cursor.lockState = CursorLockMode.Locked; // マウスカーソルをロック
   ```
 
 #### `CursorLockMode`
-- **����**: �J�[�\���̃��b�N���[�h���`�B
-- **�g�p��**:
+- **役割**: カーソルのロックモードを定義。
+- **使用例**:
   ```csharp
-  Cursor.lockState = CursorLockMode.Locked; // �J�[�\�����b�N���[�h��ݒ�
+  Cursor.lockState = CursorLockMode.Locked; // カーソルロックモードを設定
   ```
 
 #### `Mathf`
-- **����**: ���w�I�Ȋ֐���萔��񋟁B
-- **�g�p��**:
+- **役割**: 数学的な関数や定数を提供。
+- **使用例**:
   ```csharp
-  rotationY = Mathf.Clamp(rotationY, -35, 60); // ��]�͈͂𐧌�
+  rotationY = Mathf.Clamp(rotationY, -35, 60); // 回転範囲を制限
   ```
 
-���̃X�N���v�g�ł́A�����̃N���X���g�p���āA�J�������v���C���[��Ǐ]���A�}�E�X���͂Ɋ�Â��ĉ�]���铮����������Ă��܂��B
+このスクリプトでは、これらのクラスを使用して、カメラがプレイヤーを追従し、マウス入力に基づいて回転する動作を実現しています。
  */

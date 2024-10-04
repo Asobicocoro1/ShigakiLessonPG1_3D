@@ -2,39 +2,71 @@
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform player; // プレイヤーのTransform
-    public Vector3 offset; // カメラのオフセット
-    public float sensitivity = 5.0f; // カメラの回転感度
-    public float smoothTime = 0.1f; // カメラのスムーズ追従時間
+    [SerializeField] private Transform player; // プレイヤーのTransform
+    [SerializeField] private float mouseSensitivity = 100f; // マウス感度
+    [SerializeField] private float distance = 5.0f; // プレイヤーとの距離
+    [SerializeField] private Vector3 cameraOffset = new Vector3(0, 1.5f, 0); // カメラの位置オフセット
+    [SerializeField] private Vector3 lookAtOffset = new Vector3(0, 1.0f, 0); // 注視点のオフセット（プレイヤーの少し上を見る）
+    [SerializeField] private float smoothTime = 0.1f; // カメラのスムーズ追従時間
 
     private Vector3 currentVelocity;
-    private float rotationX = 0.0f;
-    private float rotationY = 0.0f;
+    private float pitch = 0f; // 垂直方向の回転
+    private float yaw = 0f; // 水平方向の回転
 
     void Start()
     {
-        offset = transform.position - player.position;
-        Cursor.lockState = CursorLockMode.Locked; // マウスカーソルを画面中央に固定
+        Cursor.lockState = CursorLockMode.Locked; // カーソルをロック
+    }
+
+    void Update()
+    {
+        HandleCameraInput(); // マウスやコントローラーからの入力を処理
+        HandleZoom(); // ズームイン・ズームアウトの処理
     }
 
     void LateUpdate()
     {
-        // マウスの入力を取得
-        rotationX += Input.GetAxis("Mouse X") * sensitivity;
-        rotationY -= Input.GetAxis("Mouse Y") * sensitivity;
-        rotationY = Mathf.Clamp(rotationY, -35, 60); // 垂直方向の回転範囲を制限
+        FollowPlayer(); // プレイヤーの追従処理
+    }
 
-        // プレイヤーを中心にカメラを回転
-        Quaternion rotation = Quaternion.Euler(rotationY, rotationX, 0);
-        Vector3 targetPosition = player.position + rotation * offset;
+    private void HandleCameraInput()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        yaw += mouseX;
+        pitch -= mouseY;
+        pitch = Mathf.Clamp(pitch, -35f, 60f); // ピッチの制限
+    }
+
+    private void HandleZoom()
+    {
+        // マウスホイールまたはコントローラの入力でズーム調整
+        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+        distance -= scrollInput;
+        distance = Mathf.Clamp(distance, 2.0f, 10.0f); // 距離を制限
+    }
+
+    private void FollowPlayer()
+    {
+        // カメラの回転と位置を計算（プレイヤーの位置に基づく）
+        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
+
+        // カメラ位置をプレイヤーの後ろ側に配置し、カメラのオフセットを追加
+        Vector3 targetPosition = player.position + rotation * (cameraOffset - Vector3.forward * distance);
 
         // カメラの位置をスムーズに追従
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, smoothTime);
 
-        // カメラがプレイヤーを常に見るようにする
-        transform.LookAt(player.position);
+        // カメラの注視点をプレイヤーの少し上に設定（lookAtOffsetで調整）
+        Vector3 lookAtPosition = player.position + lookAtOffset;
+        transform.LookAt(lookAtPosition); // カメラがプレイヤーを常に注視
     }
 }
+
+
+
+
 /*
  この `CameraFollow` スクリプトは、Unity の `UnityEngine` 名前空間に属するいくつかのクラスを使用しています。以下に、使用されている `UnityEngine` クラスを詳細に解説します。
 

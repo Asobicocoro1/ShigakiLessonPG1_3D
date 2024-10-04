@@ -1,152 +1,163 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterController : MonoBehaviour
 {
-    public Animator animator; // Animator コンポーネント
-    public float walkSpeed = 2.0f; // 歩行速度
-    public float runSpeed = 6.0f; // 走行速度
-    public float backwardSpeed = 2.0f; // 後進速度
-    public float jumpForce = 5.0f; // ジャンプ力
+    [SerializeField] private Animator animator; // Animator コンポーネント
+    [SerializeField] private float walkSpeed = 2.0f; // 歩行速度
+    [SerializeField] private float runSpeed = 6.0f; // 走行速度
+    [SerializeField] private float backwardSpeed = 1.5f; // 後進速度
+    [SerializeField] private float slideDuration = 1.0f; // スライディングの持続時間
 
-    private bool isJumping = false; // ジャンプ中かどうかのフラグ
+    private bool isSliding = false; // スライディング中かどうかのフラグ
     private Rigidbody rb; // Rigidbody コンポーネント
-    private Transform cameraTransform; // メインカメラのTransform
-    private Quaternion forwardRotation; // 前進時の向き
+    private Transform cameraTransform; // カメラのTransform
+    private float slideStartTime; // スライディングが開始された時刻
+    private float originalYPosition; // スライディング開始時のY座標を記録
+
+    [SerializeField] private BoxCollider normalCollider; // 通常時のBoxCollider
+    [SerializeField] private BoxCollider slideCollider;  // スライディング時のBoxCollider
+
+    public event Action OnSlide;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>(); // Rigidbody コンポーネントを取得
         cameraTransform = Camera.main.transform; // メインカメラのTransformを取得
-        forwardRotation = transform.rotation; // 初期の向きを保存
+
+        // 初期状態ではスライディング用のBoxColliderは無効にしておく
+        slideCollider.enabled = false;
     }
 
     void Update()
     {
-        // 移動とジャンプの処理を呼び出す
-        HandleMovement(); // 移動の処理
-        HandleJump(); // ジャンプの処理
+        if (!isSliding)
+        {
+            HandleMovement(); // 通常の移動処理
+        }
+
+        HandleSlide(); // スライディング処理
     }
 
-    void HandleMovement()
+    private void HandleMovement()
     {
-        float speed = 0f; // 移動速度
-        Vector3 movementDirection = Vector3.zero; // 移動方向
+        float speed = GetMovementSpeed(); // 速度を取得
+        Vector3 movementDirection = CalculateMovementDirection(speed); // 移動方向を取得
 
-        // カメラの前方向と右方向を基準に移動方向を計算
-        Vector3 forward = cameraTransform.forward;
-        Vector3 right = cameraTransform.right;
-        forward.y = 0f; // 垂直方向の影響を除外
-        right.y = 0f; // 垂直方向の影響を除外
-        forward.Normalize(); // 正規化
-        right.Normalize(); // 正規化
-
-        // キーボードの入力を取得
-        if (Input.GetKey(KeyCode.W))
-        {
-            // シフトキーが押されている場合は走行、それ以外は歩行
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                speed = 1f; // Running
-            }
-            else
-            {
-                speed = 0.5f; // Walking
-            }
-            movementDirection += forward;
-            forwardRotation = Quaternion.LookRotation(movementDirection, Vector3.up); // 前進時の向きを更新
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            speed = -0.5f; // 後進
-            movementDirection -= forward;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            // シフトキーが押されている場合は左走行、それ以外は左歩行
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                speed = 1f; // Running Left
-            }
-            else
-            {
-                speed = 0.5f; // Walking Left
-            }
-            movementDirection -= right;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            // シフトキーが押されている場合は右走行、それ以外は右歩行
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                speed = 1f; // Running Right
-            }
-            else
-            {
-                speed = 0.5f; // Walking Right
-            }
-            movementDirection += right;
-        }
-
-        // 斜め移動の処理
-        if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.A) && Input.GetKey(KeyCode.LeftShift))
-        {
-            speed = 1f; // 左前斜めダッシュ
-            movementDirection = forward + right * -1;
-        }
-        if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.LeftShift))
-        {
-            speed = 1f; // 右前斜めダッシュ
-            movementDirection = forward + right;
-        }
-
-        // 移動の実行
         if (movementDirection != Vector3.zero)
         {
-            movementDirection.Normalize(); // 移動方向の正規化
-            float actualSpeed = Mathf.Abs(speed) == 1f ? runSpeed : walkSpeed; // 実際の移動速度
-            transform.Translate(movementDirection * actualSpeed * Time.deltaTime, Space.World);
-
-            // 前進または横移動の場合のみローテーションを変更
-            if (speed > 0 || speed == 0.5f)
-            {
-                // プレイヤーの向きを移動方向に即座に設定
-                transform.rotation = Quaternion.LookRotation(movementDirection, Vector3.up);
-            }
-            // 後進の場合は前進時の向きを使用
-            else if (speed < 0)
-            {
-                transform.rotation = forwardRotation;
-            }
-
-            // アニメーションパラメーターを設定
-            animator.SetFloat("Speed", speed);
+            MoveCharacter(movementDirection, speed);
         }
         else
         {
-            animator.SetFloat("Speed", 0f);
+            animator.SetFloat("Speed", 0f); // 移動していないときはアニメーションを停止
         }
     }
 
-    void HandleJump()
+    private void HandleSlide()
     {
-        // ジャンプ
-        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
+        if (Input.GetKeyDown(KeyCode.Space) && !isSliding)
         {
-            isJumping = true;
-            animator.SetTrigger("JumpStart");
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            StartSlide();
+        }
+
+        if (isSliding && Time.time - slideStartTime > slideDuration)
+        {
+            EndSlide();
+        }
+
+        if (isSliding)
+        {
+            LockYPosition(); // スライディング中のY座標を固定
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    private void StartSlide()
     {
-        // 地面との衝突を検知してジャンプ状態をリセット
-        if (collision.gameObject.CompareTag("Ground"))
+        isSliding = true;
+        slideStartTime = Time.time;
+        originalYPosition = transform.position.y; // スライディング開始時のY座標を記録
+
+        animator.SetTrigger("Slide");
+        animator.applyRootMotion = false; // Root Motionを無効化
+        OnSlide?.Invoke();
+
+        // 通常のBoxColliderを無効にし、スライディング用のBoxColliderを有効にする
+        normalCollider.enabled = false;
+        slideCollider.enabled = true;
+    }
+
+    private void EndSlide()
+    {
+        isSliding = false;
+
+        // スライディング用のBoxColliderを無効にし、通常のBoxColliderを有効にする
+        normalCollider.enabled = true;
+        slideCollider.enabled = false;
+
+        animator.applyRootMotion = true; // Root Motionを再度有効化
+    }
+
+    // Y軸の位置を固定するメソッド
+    private void LockYPosition()
+    {
+        Vector3 position = transform.position;
+        position.y = originalYPosition; // 開始時のY座標を維持
+        transform.position = position;
+    }
+
+    // 走行、歩行、後退に応じて移動速度を返すメソッド
+    private float GetMovementSpeed()
+    {
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
         {
-            isJumping = false;
-            animator.SetTrigger("JumpEnd");
+            return 1f; // シフトキーを押しながら前進で走行
         }
+        if (Input.GetKey(KeyCode.S))
+        {
+            return -0.5f; // 後退時のスピードは後進速度
+        }
+        return 0.5f; // 通常の歩行速度
+    }
+
+    // カメラの方向を基に移動方向を計算するメソッド
+    private Vector3 CalculateMovementDirection(float speed)
+    {
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+        forward.y = 0f; // 上下方向の回転を無視
+        right.y = 0f;
+
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 direction = Vector3.zero;
+
+        if (Input.GetKey(KeyCode.W)) direction += forward; // 前進
+        if (Input.GetKey(KeyCode.S)) direction -= forward; // 後退
+
+        if (Input.GetKey(KeyCode.A)) direction -= right;   // 左移動
+        if (Input.GetKey(KeyCode.D)) direction += right;   // 右移動
+
+        return direction;
+    }
+
+    // キャラクターを移動させるメソッド
+    private void MoveCharacter(Vector3 direction, float speed)
+    {
+        float actualSpeed = speed < 0 ? backwardSpeed : (Mathf.Abs(speed) == 1f ? runSpeed : walkSpeed);
+        transform.Translate(direction.normalized * actualSpeed * Time.deltaTime, Space.World);
+
+        if (speed < 0)
+        {
+            transform.rotation = Quaternion.LookRotation(cameraTransform.forward, Vector3.up); // 後退時
+        }
+        else if (speed > 0 || speed == 0.5f)
+        {
+            transform.rotation = Quaternion.LookRotation(direction, Vector3.up); // 前進時
+        }
+
+        animator.SetFloat("Speed", speed < 0 ? -1f : Mathf.Abs(speed));
     }
 }

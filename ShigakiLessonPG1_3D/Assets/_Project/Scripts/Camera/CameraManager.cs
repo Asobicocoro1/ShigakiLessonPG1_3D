@@ -1,34 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    public FollowPlayerCamera followPlayerCamera; // ƒvƒŒƒCƒ„[’Ç]ƒJƒƒ‰
-    public FixedCamera fixedCamera; // ŒÅ’èƒJƒƒ‰
+    public FollowPlayerCamera followPlayerCamera; // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è¿½å¾“ã‚«ãƒ¡ãƒ©
+    public FixedCamera fixedCamera; // å›ºå®šã‚«ãƒ¡ãƒ©
 
     private enum CameraMode { FollowPlayer, Fixed }
     private CameraMode currentCameraMode;
 
-    void Start()
+    private void Start()
     {
-        // ƒfƒtƒHƒ‹ƒg‚ÌƒJƒƒ‰ƒ‚[ƒh‚ğİ’è
-        SetCameraMode(CameraMode.FollowPlayer);
+        SetCameraMode(CameraMode.FollowPlayer); // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è¿½å¾“ã‚«ãƒ¡ãƒ©ã«è¨­å®š
     }
 
-    void Update()
+    private void Update()
     {
-        // ƒL[“ü—Í‚ÅƒJƒƒ‰ƒ‚[ƒh‚ğØ‚è‘Ö‚¦
+        // ã‚­ãƒ¼å…¥åŠ›ã§ã‚«ãƒ¡ãƒ©ãƒ¢ãƒ¼ãƒ‰ã‚’åˆ‡ã‚Šæ›¿ãˆ
         if (Input.GetKeyDown(KeyCode.C))
         {
-            if (currentCameraMode == CameraMode.FollowPlayer)
-            {
-                SetCameraMode(CameraMode.Fixed);
-            }
-            else
-            {
-                SetCameraMode(CameraMode.FollowPlayer);
-            }
+            SetCameraMode(currentCameraMode == CameraMode.FollowPlayer ? CameraMode.Fixed : CameraMode.FollowPlayer);
         }
     }
 
@@ -36,18 +26,8 @@ public class CameraManager : MonoBehaviour
     {
         currentCameraMode = mode;
 
-        // ŠeƒJƒƒ‰‚Ì—LŒø/–³Œø‚ğØ‚è‘Ö‚¦
-        switch (mode)
-        {
-            case CameraMode.FollowPlayer:
-                followPlayerCamera.enabled = true;
-                fixedCamera.enabled = false;
-                break;
-            case CameraMode.Fixed:
-                followPlayerCamera.enabled = false;
-                fixedCamera.enabled = true;
-                break;
-        }
+        // ã‚«ãƒ¡ãƒ©ãƒ¢ãƒ¼ãƒ‰ã«å¿œã˜ã¦ã‚«ãƒ¡ãƒ©ã‚’æœ‰åŠ¹/ç„¡åŠ¹ã«ã™ã‚‹
+        followPlayerCamera.enabled = (mode == CameraMode.FollowPlayer);
+        fixedCamera.enabled = (mode == CameraMode.Fixed);
     }
 }
-

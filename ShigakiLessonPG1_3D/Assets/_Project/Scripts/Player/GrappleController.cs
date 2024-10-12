@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class GrappleController : MonoBehaviour
@@ -9,11 +8,18 @@ public class GrappleController : MonoBehaviour
     [SerializeField] private float maxGrappleDistance = 30f; // ワイヤーが届く最大距離
 
     private Grapple grappleSystem; // Grappleクラスのインスタンス
+    private Rigidbody playerRigidbody; // プレイヤーのRigidbody
+
+    // IsGrapplingのプロパティを公開して、CameraFollow からアクセス可能にする
+    public bool IsGrappling => grappleSystem != null && grappleSystem.IsGrappling;
 
     private void Start()
     {
+        // プレイヤーの Rigidbody を取得
+        playerRigidbody = GetComponent<Rigidbody>();
+
         // Grappleクラスのインスタンスを作成し、初期化
-        grappleSystem = new Grapple(transform, Camera.main.transform, grappleOrigin, lineRenderer, grappleLayer, maxGrappleDistance);
+        grappleSystem = new Grapple(playerRigidbody, Camera.main.transform, grappleOrigin, lineRenderer, grappleLayer, maxGrappleDistance);
     }
 
     private void Update()

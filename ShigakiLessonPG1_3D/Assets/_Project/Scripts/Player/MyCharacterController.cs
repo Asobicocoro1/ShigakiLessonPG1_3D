@@ -1,7 +1,6 @@
-using System;
 using UnityEngine;
 
-public class CharacterController : MonoBehaviour
+public class MyCharacterController : MonoBehaviour
 {
     [SerializeField] private Animator animator; // Animator コンポーネント
     [SerializeField] private float walkSpeed = 2.0f; // 歩行速度
@@ -18,7 +17,7 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private BoxCollider normalCollider; // 通常時のBoxCollider
     [SerializeField] private BoxCollider slideCollider;  // スライディング時のBoxCollider
 
-    public event Action OnSlide;
+    
 
     void Start()
     {
@@ -80,7 +79,7 @@ public class CharacterController : MonoBehaviour
 
         animator.SetTrigger("Slide");
         animator.applyRootMotion = false; // Root Motionを無効化
-        OnSlide?.Invoke();
+        
 
         // 通常のBoxColliderを無効にし、スライディング用のBoxColliderを有効にする
         normalCollider.enabled = false;
@@ -142,7 +141,7 @@ public class CharacterController : MonoBehaviour
         return direction;
     }
 
-    // キャラクターを移動させるメソッド（X軸回転を無視してY軸回転のみを適用）
+    // キャラクターを移動させるメソッド
     private void MoveCharacter(Vector3 direction, float speed)
     {
         float actualSpeed = speed < 0 ? backwardSpeed : (Mathf.Abs(speed) == 1f ? runSpeed : walkSpeed);
@@ -161,5 +160,16 @@ public class CharacterController : MonoBehaviour
 
         // アニメーション速度を設定
         animator.SetFloat("Speed", speed < 0 ? -1f : Mathf.Abs(speed));
+
+        // 後退時にZスケールを反転
+        if (speed < 0)
+        {
+            transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, -1f);
+        }
+        else
+        {
+            // 前進時には通常のスケールに戻す
+            transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, 1f);
+        }
     }
 }

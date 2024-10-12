@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Grapple
 {
-    // グラップリング中かどうかを確認するプロパティ
     public bool IsGrappling { get; private set; } = false;
 
     private SpringJoint joint; // プレイヤーを引き寄せるためのSpringJoint
@@ -16,7 +13,7 @@ public class Grapple
     private LayerMask grappleLayer; // グラップル可能なオブジェクトのレイヤーマスク
     private float maxGrappleDistance; // ワイヤーが届く最大距離
 
-    // コンストラクタ: Grappleクラスを初期化する
+    // コンストラクタ
     public Grapple(Transform player, Transform camera, Transform grappleOrigin, LineRenderer lineRenderer, LayerMask grappleLayer, float maxDistance)
     {
         this.playerTransform = player;
@@ -31,10 +28,13 @@ public class Grapple
     public void TryStartGrapple()
     {
         RaycastHit hit;
-        // カメラの前方にレイキャストを飛ばし、グラップル可能なポイントがあるかを確認
         if (Physics.Raycast(grappleOrigin.position, cameraTransform.forward, out hit, maxGrappleDistance, grappleLayer))
         {
-            StartGrapple(hit.point); // グラップルポイントが見つかったら、ワイヤーを開始
+            StartGrapple(hit.point);
+        }
+        else
+        {
+            Debug.Log("グラップルポイントが見つかりませんでした。");
         }
     }
 
@@ -49,27 +49,27 @@ public class Grapple
         joint.autoConfigureConnectedAnchor = false; // 手動で接続位置を設定
         joint.connectedAnchor = grapplePoint; // グラップルポイントに接続
 
-        float distanceToGrapplePoint = Vector3.Distance(grappleOrigin.position, grapplePoint); // 距離を計算
+        float distanceToGrapplePoint = Vector3.Distance(grappleOrigin.position, grapplePoint);
 
         // SpringJointの設定（スイングの感覚を調整）
-        joint.maxDistance = distanceToGrapplePoint * 0.8f; // ワイヤーの最大距離
-        joint.minDistance = distanceToGrapplePoint * 0.25f; // ワイヤーの最小距離
-        joint.spring = 4.5f;  // スプリングの力（高いほど強く引っ張られる）
-        joint.damper = 7f;    // 減衰力（高いほどスムーズに動作）
-        joint.massScale = 4.5f; // 質量のスケーリング（プレイヤーの質量に影響）
+        joint.maxDistance = distanceToGrapplePoint * 0.8f;
+        joint.minDistance = distanceToGrapplePoint * 0.25f;
+        joint.spring = 4.5f;
+        joint.damper = 7f;
+        joint.massScale = 4.5f;
 
         // LineRendererの描画準備
-        lineRenderer.positionCount = 2; // 始点と終点を設定
+        lineRenderer.positionCount = 2; // ワイヤーの描画頂点を2つに設定
     }
 
-    // ワイヤーを解除する処理
+    // ワイヤー解除の処理
     public void StopGrapple()
     {
         if (joint != null)
         {
-            GameObject.Destroy(joint); // SpringJointを破壊し、プレイヤーを解放
+            GameObject.Destroy(joint); // SpringJointを破壊
         }
-        IsGrappling = false; // グラップル終了
+        IsGrappling = false;
         lineRenderer.positionCount = 0; // ワイヤーの描画を停止
     }
 
@@ -83,4 +83,3 @@ public class Grapple
         lineRenderer.SetPosition(1, grapplePoint); // ワイヤーの接続ポイント
     }
 }
-

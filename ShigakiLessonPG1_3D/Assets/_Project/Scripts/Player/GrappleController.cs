@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GrappleController : MonoBehaviour
@@ -35,4 +34,3 @@ public class GrappleController : MonoBehaviour
         grappleSystem.DrawRope();
     }
 }
-

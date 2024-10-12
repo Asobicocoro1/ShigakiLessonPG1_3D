@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using UnityEngine;
 
 public class CharacterController : MonoBehaviour
@@ -143,21 +142,24 @@ public class CharacterController : MonoBehaviour
         return direction;
     }
 
-    // キャラクターを移動させるメソッド
+    // キャラクターを移動させるメソッド（X軸回転を無視してY軸回転のみを適用）
     private void MoveCharacter(Vector3 direction, float speed)
     {
         float actualSpeed = speed < 0 ? backwardSpeed : (Mathf.Abs(speed) == 1f ? runSpeed : walkSpeed);
+
+        // キャラクターを移動させる
         transform.Translate(direction.normalized * actualSpeed * Time.deltaTime, Space.World);
 
-        if (speed < 0)
+        // カメラのY軸方向にキャラクターの回転を合わせる
+        Vector3 lookDirection = new Vector3(direction.x, 0, direction.z); // X軸回転を無視する
+
+        if (lookDirection != Vector3.zero)
         {
-            transform.rotation = Quaternion.LookRotation(cameraTransform.forward, Vector3.up); // 後退時
-        }
-        else if (speed > 0 || speed == 0.5f)
-        {
-            transform.rotation = Quaternion.LookRotation(direction, Vector3.up); // 前進時
+            // X軸の回転を除外してキャラクターを回転させる
+            transform.rotation = Quaternion.LookRotation(lookDirection);
         }
 
+        // アニメーション速度を設定
         animator.SetFloat("Speed", speed < 0 ? -1f : Mathf.Abs(speed));
     }
 }

@@ -1,19 +1,19 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class Grapple
 {
     public bool IsGrappling { get; private set; } = false;
 
-    private SpringJoint joint; // ƒvƒŒƒCƒ„[‚ğˆø‚«Šñ‚¹‚é‚½‚ß‚ÌSpringJoint
-    private LineRenderer lineRenderer; // ƒƒCƒ„[‚Ì•`‰æ‚Ég—p‚·‚éLineRenderer
-    private Rigidbody playerRigidbody; // ƒvƒŒƒCƒ„[‚ÌRigidbody
-    private Transform cameraTransform; // ƒJƒƒ‰‚ÌTransform
-    private Transform grappleOrigin; // ƒƒCƒ„[‚ª”­Ë‚³‚ê‚é‹N“_‚ÌTransform
-    private Vector3 grapplePoint; // ƒƒCƒ„[‚ªˆø‚Á‚©‚©‚éƒ|ƒCƒ“ƒg
-    private LayerMask grappleLayer; // ƒOƒ‰ƒbƒvƒ‹‰Â”\‚ÈƒIƒuƒWƒFƒNƒg‚ÌƒŒƒCƒ„[ƒ}ƒXƒN
-    private float maxGrappleDistance; // ƒƒCƒ„[‚ª“Í‚­Å‘å‹——£
+    private SpringJoint joint; // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’å¼•ãå¯„ã›ã‚‹ãŸã‚ã®SpringJoint
+    private LineRenderer lineRenderer; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®æç”»ã«ä½¿ç”¨ã™ã‚‹LineRenderer
+    private Rigidbody playerRigidbody; // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®Rigidbody
+    private Transform cameraTransform; // ã‚«ãƒ¡ãƒ©ã®Transform
+    private Transform grappleOrigin; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ãŒç™ºå°„ã•ã‚Œã‚‹èµ·ç‚¹ã®Transform
+    private Vector3 grapplePoint; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ãŒå¼•ã£ã‹ã‹ã‚‹ãƒã‚¤ãƒ³ãƒˆ
+    private LayerMask grappleLayer; // ã‚°ãƒ©ãƒƒãƒ—ãƒ«å¯èƒ½ãªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒã‚¹ã‚¯
+    private float maxGrappleDistance; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ãŒå±Šãæœ€å¤§è·é›¢
 
-    // ƒRƒ“ƒXƒgƒ‰ƒNƒ^: GrappleƒNƒ‰ƒX‚ğ‰Šú‰»
+    // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿: Grappleã‚¯ãƒ©ã‚¹ã‚’åˆæœŸåŒ–
     public Grapple(Rigidbody player, Transform camera, Transform grappleOrigin, LineRenderer lineRenderer, LayerMask grappleLayer, float maxDistance)
     {
         this.playerRigidbody = player;
@@ -24,63 +24,63 @@ public class Grapple
         this.maxGrappleDistance = maxDistance;
     }
 
-    // ƒƒCƒ„[‚ğ”­Ë‚µ‚æ‚¤‚Æ‚·‚éŠÖ”
+    // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’ç™ºå°„ã—ã‚ˆã†ã¨ã™ã‚‹é–¢æ•°
     public void TryStartGrapple()
     {
         RaycastHit hit;
-        // ƒJƒƒ‰‚Ì‘O•û‚ÉƒŒƒCƒLƒƒƒXƒg‚ğ”ò‚Î‚µAƒOƒ‰ƒbƒvƒ‹‰Â”\‚Èƒ|ƒCƒ“ƒg‚ª‚ ‚é‚©Šm”F
+        // ã‚«ãƒ¡ãƒ©ã®å‰æ–¹ã«ãƒ¬ã‚¤ã‚­ãƒ£ã‚¹ãƒˆã‚’é£›ã°ã—ã€ã‚°ãƒ©ãƒƒãƒ—ãƒ«å¯èƒ½ãªãƒã‚¤ãƒ³ãƒˆãŒã‚ã‚‹ã‹ç¢ºèª
         if (Physics.Raycast(grappleOrigin.position, cameraTransform.forward, out hit, maxGrappleDistance, grappleLayer))
         {
-            StartGrapple(hit.point); // ƒOƒ‰ƒbƒvƒ‹ƒ|ƒCƒ“ƒg‚ªŒ©‚Â‚©‚Á‚½‚çAƒƒCƒ„[‚ğŠJn
+            StartGrapple(hit.point); // ã‚°ãƒ©ãƒƒãƒ—ãƒ«ãƒã‚¤ãƒ³ãƒˆãŒè¦‹ã¤ã‹ã£ãŸã‚‰ã€ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’é–‹å§‹
         }
         else
         {
-            Debug.Log("ƒOƒ‰ƒbƒvƒ‹ƒ|ƒCƒ“ƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B");
+            Debug.Log("ã‚°ãƒ©ãƒƒãƒ—ãƒ«ãƒã‚¤ãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚");
         }
     }
 
-    // ƒƒCƒ„[”­Ë‚Ìˆ—
+    // ãƒ¯ã‚¤ãƒ¤ãƒ¼ç™ºå°„ã®å‡¦ç†
     private void StartGrapple(Vector3 hitPoint)
     {
-        grapplePoint = hitPoint; // ƒOƒ‰ƒbƒvƒ‹‚·‚éêŠ‚ğİ’è
-        IsGrappling = true; // ƒOƒ‰ƒbƒvƒŠƒ“ƒO’†‚Éİ’è
+        grapplePoint = hitPoint; // ã‚°ãƒ©ãƒƒãƒ—ãƒ«ã™ã‚‹å ´æ‰€ã‚’è¨­å®š
+        IsGrappling = true; // ã‚°ãƒ©ãƒƒãƒ—ãƒªãƒ³ã‚°ä¸­ã«è¨­å®š
 
-        // ƒvƒŒƒCƒ„[‚ÉSpringJoint‚ğ’Ç‰Á‚µAˆø‚«Šñ‚¹‚ç‚ê‚é‚æ‚¤‚É‚·‚é
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«SpringJointã‚’è¿½åŠ ã—ã€å¼•ãå¯„ã›ã‚‰ã‚Œã‚‹ã‚ˆã†ã«ã™ã‚‹
         joint = playerRigidbody.gameObject.AddComponent<SpringJoint>();
-        joint.autoConfigureConnectedAnchor = false; // è“®‚ÅÚ‘±ˆÊ’u‚ğİ’è
-        joint.connectedAnchor = grapplePoint; // ƒOƒ‰ƒbƒvƒ‹ƒ|ƒCƒ“ƒg‚ÉÚ‘±
+        joint.autoConfigureConnectedAnchor = false; // æ‰‹å‹•ã§æ¥ç¶šä½ç½®ã‚’è¨­å®š
+        joint.connectedAnchor = grapplePoint; // ã‚°ãƒ©ãƒƒãƒ—ãƒ«ãƒã‚¤ãƒ³ãƒˆã«æ¥ç¶š
 
-        float distanceToGrapplePoint = Vector3.Distance(grappleOrigin.position, grapplePoint); // ‹——£‚ğŒvZ
+        float distanceToGrapplePoint = Vector3.Distance(grappleOrigin.position, grapplePoint); // è·é›¢ã‚’è¨ˆç®—
 
-        // SpringJoint‚Ìİ’èiƒXƒCƒ“ƒO‚ÌŠ´Šo‚ğ’²®j
-        joint.maxDistance = distanceToGrapplePoint * 0.8f; // ƒƒCƒ„[‚ÌÅ‘å‹——£
-        joint.minDistance = distanceToGrapplePoint * 0.25f; // ƒƒCƒ„[‚ÌÅ¬‹——£
-        joint.spring = 4.5f;  // ƒXƒvƒŠƒ“ƒO‚Ì—Íi‚‚¢‚Ù‚Ç‹­‚­ˆø‚Á’£‚ç‚ê‚éj
-        joint.damper = 7f;    // Œ¸Š—Íi‚‚¢‚Ù‚ÇƒXƒ€[ƒY‚É“®ìj
-        joint.massScale = 4.5f; // ¿—Ê‚ÌƒXƒP[ƒŠƒ“ƒOiƒvƒŒƒCƒ„[‚Ì¿—Ê‚É‰e‹¿j
+        // SpringJointã®è¨­å®šï¼ˆã‚¹ã‚¤ãƒ³ã‚°ã®æ„Ÿè¦šã‚’èª¿æ•´ï¼‰
+        joint.maxDistance = distanceToGrapplePoint * 0.8f; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®æœ€å¤§è·é›¢
+        joint.minDistance = distanceToGrapplePoint * 0.25f; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®æœ€å°è·é›¢
+        joint.spring = 4.5f;  // ã‚¹ãƒ—ãƒªãƒ³ã‚°ã®åŠ›ï¼ˆé«˜ã„ã»ã©å¼·ãå¼•ã£å¼µã‚‰ã‚Œã‚‹ï¼‰
+        joint.damper = 7f;    // æ¸›è¡°åŠ›ï¼ˆé«˜ã„ã»ã©ã‚¹ãƒ ãƒ¼ã‚ºã«å‹•ä½œï¼‰
+        joint.massScale = 4.5f; // è³ªé‡ã®ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°ï¼ˆãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è³ªé‡ã«å½±éŸ¿ï¼‰
 
-        // LineRenderer‚Ì•`‰æ€”õ
-        lineRenderer.positionCount = 2; // ƒƒCƒ„[‚Ì•`‰æ’¸“_‚ğ2‚Â‚Éİ’è
+        // LineRendererã®æç”»æº–å‚™
+        lineRenderer.positionCount = 2; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®æç”»é ‚ç‚¹ã‚’2ã¤ã«è¨­å®š
     }
 
-    // ƒƒCƒ„[‰ğœ‚Ìˆ—
+    // ãƒ¯ã‚¤ãƒ¤ãƒ¼è§£é™¤ã®å‡¦ç†
     public void StopGrapple()
     {
         if (joint != null)
         {
-            GameObject.Destroy(joint); // SpringJoint‚ğ”j‰ó‚µAƒvƒŒƒCƒ„[‚ğ‰ğ•ú
+            GameObject.Destroy(joint); // SpringJointã‚’ç ´å£Šã—ã€ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’è§£æ”¾
         }
         IsGrappling = false;
-        lineRenderer.positionCount = 0; // ƒƒCƒ„[‚Ì•`‰æ‚ğ’â~
+        lineRenderer.positionCount = 0; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®æç”»ã‚’åœæ­¢
     }
 
-    // ƒƒCƒ„[‚ğ•`‰æ‚·‚éˆ—
+    // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’æç”»ã™ã‚‹å‡¦ç†
     public void DrawRope()
     {
-        if (!IsGrappling) return; // ƒOƒ‰ƒbƒvƒŠƒ“ƒO’†‚Å‚È‚¢ê‡‚Í•`‰æ‚µ‚È‚¢
+        if (!IsGrappling) return; // ã‚°ãƒ©ãƒƒãƒ—ãƒªãƒ³ã‚°ä¸­ã§ãªã„å ´åˆã¯æç”»ã—ãªã„
 
-        // ƒƒCƒ„[‚Ìn“_‚ÆI“_‚ğİ’è
-        lineRenderer.SetPosition(0, grappleOrigin.position); // ƒƒCƒ„[‚Ì”­ËˆÊ’u
-        lineRenderer.SetPosition(1, grapplePoint); // ƒƒCƒ„[‚ÌÚ‘±ƒ|ƒCƒ“ƒg
+        // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®å§‹ç‚¹ã¨çµ‚ç‚¹ã‚’è¨­å®š
+        lineRenderer.SetPosition(0, grappleOrigin.position); // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®ç™ºå°„ä½ç½®
+        lineRenderer.SetPosition(1, grapplePoint); // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®æ¥ç¶šãƒã‚¤ãƒ³ãƒˆ
     }
 }

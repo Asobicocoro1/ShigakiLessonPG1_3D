@@ -1,42 +1,42 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class GrappleController : MonoBehaviour
 {
-    [SerializeField] private Transform grappleOrigin; // ƒƒCƒ„[”­Ë‚Ì‹N“_
-    [SerializeField] private LineRenderer lineRenderer; // ƒƒCƒ„[•`‰æ—p
-    [SerializeField] private LayerMask grappleLayer; // ƒOƒ‰ƒbƒvƒ‹‰Â”\‚ÈƒŒƒCƒ„[
-    [SerializeField] private float maxGrappleDistance = 30f; // ƒƒCƒ„[‚ª“Í‚­Å‘å‹——£
+    [SerializeField] private Transform grappleOrigin; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ç™ºå°„ã®èµ·ç‚¹
+    [SerializeField] private LineRenderer lineRenderer; // ãƒ¯ã‚¤ãƒ¤ãƒ¼æç”»ç”¨
+    [SerializeField] private LayerMask grappleLayer; // ã‚°ãƒ©ãƒƒãƒ—ãƒ«å¯èƒ½ãªãƒ¬ã‚¤ãƒ¤ãƒ¼
+    [SerializeField] private float maxGrappleDistance = 30f; // ãƒ¯ã‚¤ãƒ¤ãƒ¼ãŒå±Šãæœ€å¤§è·é›¢
 
-    private Grapple grappleSystem; // GrappleƒNƒ‰ƒX‚ÌƒCƒ“ƒXƒ^ƒ“ƒX
-    private Rigidbody playerRigidbody; // ƒvƒŒƒCƒ„[‚ÌRigidbody
+    private Grapple grappleSystem; // Grappleã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
+    private Rigidbody playerRigidbody; // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®Rigidbody
 
-    // IsGrappling‚ÌƒvƒƒpƒeƒB‚ğŒöŠJ‚µ‚ÄACameraFollow ‚©‚çƒAƒNƒZƒX‰Â”\‚É‚·‚é
+    // IsGrapplingã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å…¬é–‹ã—ã¦ã€CameraFollow ã‹ã‚‰ã‚¢ã‚¯ã‚»ã‚¹å¯èƒ½ã«ã™ã‚‹
     public bool IsGrappling => grappleSystem != null && grappleSystem.IsGrappling;
 
     private void Start()
     {
-        // ƒvƒŒƒCƒ„[‚Ì Rigidbody ‚ğæ“¾
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã® Rigidbody ã‚’å–å¾—
         playerRigidbody = GetComponent<Rigidbody>();
 
-        // GrappleƒNƒ‰ƒX‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğì¬‚µA‰Šú‰»
+        // Grappleã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä½œæˆã—ã€åˆæœŸåŒ–
         grappleSystem = new Grapple(playerRigidbody, Camera.main.transform, grappleOrigin, lineRenderer, grappleLayer, maxGrappleDistance);
     }
 
     private void Update()
     {
-        // ‰EƒNƒŠƒbƒN‚ÅƒƒCƒ„[”­Ë
-        if (Input.GetMouseButtonDown(1)) // 1‚Í‰EƒNƒŠƒbƒN
+        // å³ã‚¯ãƒªãƒƒã‚¯ã§ãƒ¯ã‚¤ãƒ¤ãƒ¼ç™ºå°„
+        if (Input.GetMouseButtonDown(1)) // 1ã¯å³ã‚¯ãƒªãƒƒã‚¯
         {
             grappleSystem.TryStartGrapple();
         }
 
-        // ‰EƒNƒŠƒbƒN‚ğ—£‚µ‚½‚çƒƒCƒ„[‰ğœ
+        // å³ã‚¯ãƒªãƒƒã‚¯ã‚’é›¢ã—ãŸã‚‰ãƒ¯ã‚¤ãƒ¤ãƒ¼è§£é™¤
         if (Input.GetMouseButtonUp(1))
         {
             grappleSystem.StopGrapple();
         }
 
-        // ƒƒCƒ„[‚ª”­Ë‚³‚ê‚Ä‚¢‚éŠÔ‚Í•`‰æ
+        // ãƒ¯ã‚¤ãƒ¤ãƒ¼ãŒç™ºå°„ã•ã‚Œã¦ã„ã‚‹é–“ã¯æç”»
         grappleSystem.DrawRope();
     }
 }

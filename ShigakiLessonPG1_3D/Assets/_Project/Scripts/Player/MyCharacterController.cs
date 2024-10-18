@@ -1,30 +1,30 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class MyCharacterController : MonoBehaviour
 {
-    [SerializeField] private Animator animator; // Animator ƒRƒ“ƒ|[ƒlƒ“ƒg
-    [SerializeField] private float walkSpeed = 2.0f; // •às‘¬“x
-    [SerializeField] private float runSpeed = 6.0f; // ‘–s‘¬“x
-    [SerializeField] private float backwardSpeed = 1.5f; // Œãi‘¬“x
-    [SerializeField] private float slideDuration = 1.0f; // ƒXƒ‰ƒCƒfƒBƒ“ƒO‚Ì‘±ŠÔ
+    [SerializeField] private Animator animator; // Animator ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
+    [SerializeField] private float walkSpeed = 2.0f; // æ­©è¡Œé€Ÿåº¦
+    [SerializeField] private float runSpeed = 6.0f; // èµ°è¡Œé€Ÿåº¦
+    [SerializeField] private float backwardSpeed = 1.5f; // å¾Œé€²é€Ÿåº¦
+    [SerializeField] private float slideDuration = 1.0f; // ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°ã®æŒç¶šæ™‚é–“
 
-    private bool isSliding = false; // ƒXƒ‰ƒCƒfƒBƒ“ƒO’†‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO
-    private Rigidbody rb; // Rigidbody ƒRƒ“ƒ|[ƒlƒ“ƒg
-    private Transform cameraTransform; // ƒJƒƒ‰‚ÌTransform
-    private float slideStartTime; // ƒXƒ‰ƒCƒfƒBƒ“ƒO‚ªŠJn‚³‚ê‚½
-    private float originalYPosition; // ƒXƒ‰ƒCƒfƒBƒ“ƒOŠJn‚ÌYÀ•W‚ğ‹L˜^
+    private bool isSliding = false; // ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°ä¸­ã‹ã©ã†ã‹ã®ãƒ•ãƒ©ã‚°
+    private Rigidbody rb; // Rigidbody ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
+    private Transform cameraTransform; // ã‚«ãƒ¡ãƒ©ã®Transform
+    private float slideStartTime; // ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°ãŒé–‹å§‹ã•ã‚ŒãŸæ™‚åˆ»
+    private float originalYPosition; // ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°é–‹å§‹æ™‚ã®Yåº§æ¨™ã‚’è¨˜éŒ²
 
-    [SerializeField] private BoxCollider normalCollider; // ’Êí‚ÌBoxCollider
-    [SerializeField] private BoxCollider slideCollider;  // ƒXƒ‰ƒCƒfƒBƒ“ƒO‚ÌBoxCollider
+    [SerializeField] private BoxCollider normalCollider; // é€šå¸¸æ™‚ã®BoxCollider
+    [SerializeField] private BoxCollider slideCollider;  // ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°æ™‚ã®BoxCollider
 
     
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>(); // Rigidbody ƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ“¾
-        cameraTransform = Camera.main.transform; // ƒƒCƒ“ƒJƒƒ‰‚ÌTransform‚ğæ“¾
+        rb = GetComponent<Rigidbody>(); // Rigidbody ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–å¾—
+        cameraTransform = Camera.main.transform; // ãƒ¡ã‚¤ãƒ³ã‚«ãƒ¡ãƒ©ã®Transformã‚’å–å¾—
 
-        // ‰Šúó‘Ô‚Å‚ÍƒXƒ‰ƒCƒfƒBƒ“ƒO—p‚ÌBoxCollider‚Í–³Œø‚É‚µ‚Ä‚¨‚­
+        // åˆæœŸçŠ¶æ…‹ã§ã¯ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°ç”¨ã®BoxColliderã¯ç„¡åŠ¹ã«ã—ã¦ãŠã
         slideCollider.enabled = false;
     }
 
@@ -32,16 +32,16 @@ public class MyCharacterController : MonoBehaviour
     {
         if (!isSliding)
         {
-            HandleMovement(); // ’Êí‚ÌˆÚ“®ˆ—
+            HandleMovement(); // é€šå¸¸ã®ç§»å‹•å‡¦ç†
         }
 
-        HandleSlide(); // ƒXƒ‰ƒCƒfƒBƒ“ƒOˆ—
+        HandleSlide(); // ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°å‡¦ç†
     }
 
     private void HandleMovement()
     {
-        float speed = GetMovementSpeed(); // ‘¬“x‚ğæ“¾
-        Vector3 movementDirection = CalculateMovementDirection(speed); // ˆÚ“®•ûŒü‚ğæ“¾
+        float speed = GetMovementSpeed(); // é€Ÿåº¦ã‚’å–å¾—
+        Vector3 movementDirection = CalculateMovementDirection(speed); // ç§»å‹•æ–¹å‘ã‚’å–å¾—
 
         if (movementDirection != Vector3.zero)
         {
@@ -49,7 +49,7 @@ public class MyCharacterController : MonoBehaviour
         }
         else
         {
-            animator.SetFloat("Speed", 0f); // ˆÚ“®‚µ‚Ä‚¢‚È‚¢‚Æ‚«‚ÍƒAƒjƒ[ƒVƒ‡ƒ“‚ğ’â~
+            animator.SetFloat("Speed", 0f); // ç§»å‹•ã—ã¦ã„ãªã„ã¨ãã¯ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’åœæ­¢
         }
     }
 
@@ -67,7 +67,7 @@ public class MyCharacterController : MonoBehaviour
 
         if (isSliding)
         {
-            LockYPosition(); // ƒXƒ‰ƒCƒfƒBƒ“ƒO’†‚ÌYÀ•W‚ğŒÅ’è
+            //LockYPosition(); // ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°ä¸­ã®Yåº§æ¨™ã‚’å›ºå®š
         }
     }
 
@@ -75,13 +75,13 @@ public class MyCharacterController : MonoBehaviour
     {
         isSliding = true;
         slideStartTime = Time.time;
-        originalYPosition = transform.position.y; // ƒXƒ‰ƒCƒfƒBƒ“ƒOŠJn‚ÌYÀ•W‚ğ‹L˜^
+        originalYPosition = transform.position.y; // ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°é–‹å§‹æ™‚ã®Yåº§æ¨™ã‚’è¨˜éŒ²
 
         animator.SetTrigger("Slide");
-        animator.applyRootMotion = false; // Root Motion‚ğ–³Œø‰»
+        animator.applyRootMotion = false; // Root Motionã‚’ç„¡åŠ¹åŒ–
         
 
-        // ’Êí‚ÌBoxCollider‚ğ–³Œø‚É‚µAƒXƒ‰ƒCƒfƒBƒ“ƒO—p‚ÌBoxCollider‚ğ—LŒø‚É‚·‚é
+        // é€šå¸¸ã®BoxColliderã‚’ç„¡åŠ¹ã«ã—ã€ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°ç”¨ã®BoxColliderã‚’æœ‰åŠ¹ã«ã™ã‚‹
         normalCollider.enabled = false;
         slideCollider.enabled = true;
     }
@@ -90,41 +90,41 @@ public class MyCharacterController : MonoBehaviour
     {
         isSliding = false;
 
-        // ƒXƒ‰ƒCƒfƒBƒ“ƒO—p‚ÌBoxCollider‚ğ–³Œø‚É‚µA’Êí‚ÌBoxCollider‚ğ—LŒø‚É‚·‚é
+        // ã‚¹ãƒ©ã‚¤ãƒ‡ã‚£ãƒ³ã‚°ç”¨ã®BoxColliderã‚’ç„¡åŠ¹ã«ã—ã€é€šå¸¸ã®BoxColliderã‚’æœ‰åŠ¹ã«ã™ã‚‹
         normalCollider.enabled = true;
         slideCollider.enabled = false;
 
-        animator.applyRootMotion = true; // Root Motion‚ğÄ“x—LŒø‰»
+        animator.applyRootMotion = true; // Root Motionã‚’å†åº¦æœ‰åŠ¹åŒ–
     }
 
-    // Y²‚ÌˆÊ’u‚ğŒÅ’è‚·‚éƒƒ\ƒbƒh
+    // Yè»¸ã®ä½ç½®ã‚’å›ºå®šã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
     private void LockYPosition()
     {
         Vector3 position = transform.position;
-        position.y = originalYPosition; // ŠJn‚ÌYÀ•W‚ğˆÛ
+        position.y = originalYPosition; // é–‹å§‹æ™‚ã®Yåº§æ¨™ã‚’ç¶­æŒ
         transform.position = position;
     }
 
-    // ‘–sA•àsAŒã‘Ş‚É‰‚¶‚ÄˆÚ“®‘¬“x‚ğ•Ô‚·ƒƒ\ƒbƒh
+    // èµ°è¡Œã€æ­©è¡Œã€å¾Œé€€ã«å¿œã˜ã¦ç§»å‹•é€Ÿåº¦ã‚’è¿”ã™ãƒ¡ã‚½ãƒƒãƒ‰
     private float GetMovementSpeed()
     {
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
         {
-            return 1f; // ƒVƒtƒgƒL[‚ğ‰Ÿ‚µ‚È‚ª‚ç‘Oi‚Å‘–s
+            return 1f; // ã‚·ãƒ•ãƒˆã‚­ãƒ¼ã‚’æŠ¼ã—ãªãŒã‚‰å‰é€²ã§èµ°è¡Œ
         }
         if (Input.GetKey(KeyCode.S))
         {
-            return -0.5f; // Œã‘Ş‚ÌƒXƒs[ƒh‚ÍŒãi‘¬“x
+            return -0.5f; // å¾Œé€€æ™‚ã®ã‚¹ãƒ”ãƒ¼ãƒ‰ã¯å¾Œé€²é€Ÿåº¦
         }
-        return 0.5f; // ’Êí‚Ì•às‘¬“x
+        return 0.5f; // é€šå¸¸ã®æ­©è¡Œé€Ÿåº¦
     }
 
-    // ƒJƒƒ‰‚Ì•ûŒü‚ğŠî‚ÉˆÚ“®•ûŒü‚ğŒvZ‚·‚éƒƒ\ƒbƒh
+    // ã‚«ãƒ¡ãƒ©ã®æ–¹å‘ã‚’åŸºã«ç§»å‹•æ–¹å‘ã‚’è¨ˆç®—ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
     private Vector3 CalculateMovementDirection(float speed)
     {
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
-        forward.y = 0f; // ã‰º•ûŒü‚Ì‰ñ“]‚ğ–³‹
+        forward.y = 0f; // ä¸Šä¸‹æ–¹å‘ã®å›è»¢ã‚’ç„¡è¦–
         right.y = 0f;
 
         forward.Normalize();
@@ -132,43 +132,43 @@ public class MyCharacterController : MonoBehaviour
 
         Vector3 direction = Vector3.zero;
 
-        if (Input.GetKey(KeyCode.W)) direction += forward; // ‘Oi
-        if (Input.GetKey(KeyCode.S)) direction -= forward; // Œã‘Ş
+        if (Input.GetKey(KeyCode.W)) direction += forward; // å‰é€²
+        if (Input.GetKey(KeyCode.S)) direction -= forward; // å¾Œé€€
 
-        if (Input.GetKey(KeyCode.A)) direction -= right;   // ¶ˆÚ“®
-        if (Input.GetKey(KeyCode.D)) direction += right;   // ‰EˆÚ“®
+        if (Input.GetKey(KeyCode.A)) direction -= right;   // å·¦ç§»å‹•
+        if (Input.GetKey(KeyCode.D)) direction += right;   // å³ç§»å‹•
 
         return direction;
     }
 
-    // ƒLƒƒƒ‰ƒNƒ^[‚ğˆÚ“®‚³‚¹‚éƒƒ\ƒbƒh
+    // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚’ç§»å‹•ã•ã›ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
     private void MoveCharacter(Vector3 direction, float speed)
     {
         float actualSpeed = speed < 0 ? backwardSpeed : (Mathf.Abs(speed) == 1f ? runSpeed : walkSpeed);
 
-        // ƒLƒƒƒ‰ƒNƒ^[‚ğˆÚ“®‚³‚¹‚é
+        // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚’ç§»å‹•ã•ã›ã‚‹
         transform.Translate(direction.normalized * actualSpeed * Time.deltaTime, Space.World);
 
-        // ƒJƒƒ‰‚ÌY²•ûŒü‚ÉƒLƒƒƒ‰ƒNƒ^[‚Ì‰ñ“]‚ğ‡‚í‚¹‚é
-        Vector3 lookDirection = new Vector3(direction.x, 0, direction.z); // X²‰ñ“]‚ğ–³‹‚·‚é
+        // ã‚«ãƒ¡ãƒ©ã®Yè»¸æ–¹å‘ã«ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®å›è»¢ã‚’åˆã‚ã›ã‚‹
+        Vector3 lookDirection = new Vector3(direction.x, 0, direction.z); // å›è»¢ã‚’ç„¡è¦–ã™ã‚‹
 
         if (lookDirection != Vector3.zero)
         {
-            // X²‚Ì‰ñ“]‚ğœŠO‚µ‚ÄƒLƒƒƒ‰ƒNƒ^[‚ğ‰ñ“]‚³‚¹‚é
+            // Xè»¸ã®å›è»¢ã‚’é™¤å¤–ã—ã¦ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚’å›è»¢ã•ã›ã‚‹
             transform.rotation = Quaternion.LookRotation(lookDirection);
         }
 
-        // ƒAƒjƒ[ƒVƒ‡ƒ“‘¬“x‚ğİ’è
+        // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³é€Ÿåº¦ã‚’è¨­å®š
         animator.SetFloat("Speed", speed < 0 ? -1f : Mathf.Abs(speed));
 
-        // Œã‘Ş‚ÉZƒXƒP[ƒ‹‚ğ”½“]
+        // å¾Œé€€æ™‚ã«Zã‚¹ã‚±ãƒ¼ãƒ«ã‚’åè»¢
         if (speed < 0)
         {
             transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, -1f);
         }
         else
         {
-            // ‘Oi‚É‚Í’Êí‚ÌƒXƒP[ƒ‹‚É–ß‚·
+            // å‰é€²æ™‚ã«ã¯é€šå¸¸ã®ã‚¹ã‚±ãƒ¼ãƒ«ã«æˆ»ã™
             transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, 1f);
         }
     }

@@ -15,19 +15,19 @@ public class CameraFollow : MonoBehaviour
     private float yaw = 0f; // 水平方向の回転
     private float currentDistance; // 現在のカメラ距離
 
-    private GrappleController grappleController; // グラップル状態を監視
+   
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked; // カーソルをロック
         currentDistance = normalDistance; // 通常の距離を初期値に設定
-        grappleController = player.GetComponent<GrappleController>(); // プレイヤーのグラップルコントローラーを取得
+       
     }
 
     void Update()
     {
         HandleCameraInput(); // マウスやコントローラーからの入力を処理
-        HandleZoom(); // ズームイン・ズームアウトの処理
+       
     }
 
     void LateUpdate()
@@ -45,18 +45,7 @@ public class CameraFollow : MonoBehaviour
         pitch = Mathf.Clamp(pitch, -35f, 60f); // ピッチの制限
     }
 
-    private void HandleZoom()
-    {
-        // グラップル中は距離を遠ざけ、通常時には元に戻す
-        if (grappleController != null && grappleController.IsGrappling)
-        {
-            currentDistance = Mathf.Lerp(currentDistance, swingDistance, Time.deltaTime * smoothTime); // スイング中にカメラを引く
-        }
-        else
-        {
-            currentDistance = Mathf.Lerp(currentDistance, normalDistance, Time.deltaTime * smoothTime); // 通常距離に戻す
-        }
-    }
+   
 
     private void FollowPlayer()
     {

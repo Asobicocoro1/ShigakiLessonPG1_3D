@@ -11,45 +11,45 @@ public class GamepadInputManager : MonoBehaviour
 
     private void Awake()
     {
-        // シングルトンパターンの実装
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // オブジェクトを次のシーンでも破棄しないようにする
+            DontDestroyOnLoad(gameObject);
 
-            // もし、このオブジェクトがルートオブジェクトでない場合、ルートに移動
             if (transform.parent != null)
             {
-                transform.SetParent(null); // 親オブジェクトから切り離すことでルートオブジェクトにする
+                transform.SetParent(null);
             }
 
-            InitializeDefaultMappings();    // デフォルトのマッピングを設定
+            InitializeDefaultMappings();  // ボタンのデフォルトマッピングを設定
         }
         else
         {
-            Destroy(gameObject);  // シングルトンを維持し、重複インスタンスを破棄
+            Destroy(gameObject);
         }
     }
 
-    // デフォルトのボタン・軸マッピングを設定
+    // ボタン・軸マッピングを初期化
     private void InitializeDefaultMappings()
     {
         buttonMappings = new Dictionary<string, string>
         {
-            { "Slide", "Fire1" },      // Bボタン (例)
-            { "Grapple", "Fire2" },    // R2トリガー (例)
-            { "Run", "Fire3" }         // L2トリガー (例)
+            { "Slide", "Fire1" },
+            { "GrappleRight", "Fire2" },  // 右ワイヤーのボタンを設定
+            { "GrappleLeft", "Fire3" },   // 左ワイヤーのボタンを設定
+            { "Run", "Fire4" }
         };
 
         axisMappings = new Dictionary<string, string>
         {
-            { "MoveHorizontal", "Horizontal" },     // 左スティックX軸
-            { "MoveVertical", "Vertical" },         // 左スティックY軸
-            { "LookHorizontal", "RightStickHorizontal" },   // 右スティックX軸
-            { "LookVertical", "RightStickVertical" }        // 右スティックY軸
+            { "MoveHorizontal", "Horizontal" },
+            { "MoveVertical", "Vertical" },
+            { "LookHorizontal", "RightStickHorizontal" },
+            { "LookVertical", "RightStickVertical" }
         };
     }
 
+    // ボタンが押されたときの入力
     public bool GetButtonDown(string action)
     {
         if (buttonMappings.ContainsKey(action))
@@ -63,6 +63,7 @@ public class GamepadInputManager : MonoBehaviour
         }
     }
 
+    // ボタンが押されているかをチェック
     public bool GetButton(string action)
     {
         if (buttonMappings.ContainsKey(action))
@@ -76,6 +77,21 @@ public class GamepadInputManager : MonoBehaviour
         }
     }
 
+    // **新しく追加するメソッド**: ボタンが離されたタイミングをチェック
+    public bool GetButtonUp(string action)
+    {
+        if (buttonMappings.ContainsKey(action))
+        {
+            return Input.GetButtonUp(buttonMappings[action]);
+        }
+        else
+        {
+            Debug.LogWarning($"Action '{action}' is not mapped.");
+            return false;
+        }
+    }
+
+    // 軸入力を取得
     public float GetAxis(string action)
     {
         if (axisMappings.ContainsKey(action))
@@ -89,6 +105,7 @@ public class GamepadInputManager : MonoBehaviour
         }
     }
 
+    // ボタンマッピングを設定
     public void SetButtonMapping(string action, string button)
     {
         if (buttonMappings.ContainsKey(action))
@@ -101,6 +118,7 @@ public class GamepadInputManager : MonoBehaviour
         }
     }
 
+    // 軸マッピングを設定
     public void SetAxisMapping(string action, string axis)
     {
         if (axisMappings.ContainsKey(action))

@@ -17,7 +17,7 @@ public class MyCharacterController : MonoBehaviour
     [SerializeField] private BoxCollider normalCollider; // 通常時のBoxCollider
     [SerializeField] private BoxCollider slideCollider;  // スライディング時のBoxCollider
 
-    
+
 
     void Start()
     {
@@ -79,7 +79,7 @@ public class MyCharacterController : MonoBehaviour
 
         animator.SetTrigger("Slide");
         animator.applyRootMotion = false; // Root Motionを無効化
-        
+
 
         // 通常のBoxColliderを無効にし、スライディング用のBoxColliderを有効にする
         normalCollider.enabled = false;

@@ -1,125 +1,181 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SpiderSwing : MonoBehaviour
 {
-    // 右ワイヤー用のSpringJoint（protectedに変更）
+    // SpringJointの設定用パラメータ（インスペクターで調整可能）
+     private float maxDistanceFactor = 1.2f;   // 最大距離倍率
+     private float minDistanceFactor = 0.25f;  // 最小距離倍率
+     private float swingSpringForce = 300f;    // スイングのスプリング力
+     private float swingDamper = 7f;           // スイングの減衰力
+     private float massScale = 4.5f;           // 質量スケール
+
+    // スイング時の加速と速度制限
+     private float swingForce = 500f;          // スイング加速力
+     private float maxSwingSpeed = 28f;        // 最大スイング速度
+
+    // ワイヤーアクション関連パラメータ
+    public LayerMask grappleLayer;                             // グラップル可能なレイヤー
+    public Transform rightGrappleOrigin;                       // 右ワイヤーの発射地点
+    public Transform leftGrappleOrigin;                        // 左ワイヤーの発射地点
+    public float maxGrappleDistance = 50f;                     // グラップル距離の最大値
+    public LineRenderer rightLineRenderer;                     // 右ワイヤーのLineRenderer
+    public LineRenderer leftLineRenderer;                      // 左ワイヤーのLineRenderer
+    public GameObject swingTargetPrefab;                       // グラップルポイントの可視化オブジェクト
+
+    // 内部変数（SpringJointとスイング用オブジェクト）
     protected SpringJoint rightSpringJoint;
-    // 左ワイヤー用のSpringJoint（protectedに変更）
     protected SpringJoint leftSpringJoint;
-
-    public LayerMask grappleLayer; // グラップル可能なオブジェクトのレイヤー
-    public Transform rightGrappleOrigin; // 右ワイヤーが発射される起点
-    public Transform leftGrappleOrigin;  // 左ワイヤーが発射される起点
-    public float maxGrappleDistance = 50f; // ワイヤーが届く最大距離
-    public LineRenderer rightLineRenderer; // 右ワイヤー描画用
-    public LineRenderer leftLineRenderer;  // 左ワイヤー描画用
-    public float swingForce = 10f; // スイングの力
-
-    private Rigidbody playerRigidbody; // プレイヤーのRigidbody
-    private Vector3 rightGrapplePoint; // 右ワイヤーの引っ掛かり地点
-    private Vector3 leftGrapplePoint;  // 左ワイヤーの引っ掛かり地点
+    private Rigidbody playerRigidbody;
+    private Vector3 rightGrapplePoint;
+    private Vector3 leftGrapplePoint;
+    private GameObject rightSwingTarget;
+    private GameObject leftSwingTarget;
 
     private void Start()
     {
-        playerRigidbody = GetComponent<Rigidbody>(); // プレイヤーのRigidbodyを取得
+        playerRigidbody = GetComponent<Rigidbody>();
+
+        // グラップルターゲットの初期設定（常に表示）
+        rightSwingTarget = Instantiate(swingTargetPrefab);
+        leftSwingTarget = Instantiate(swingTargetPrefab);
+        rightSwingTarget.SetActive(true);
+        leftSwingTarget.SetActive(true);
     }
 
     private void Update()
     {
-        HandleGrappleInput(); // グラップルの入力処理
-        DrawRope(); // ワイヤーの描画処理
+        HandleGrappleInput(); // グラップル入力の処理
+        DrawRope();           // ワイヤー描画
+        ApplySwingForce();    // スイング力の適用
     }
 
-    // グラップルの入力処理
+    // グラップルの入力を処理
     private void HandleGrappleInput()
     {
-        // GamepadInputManagerを使って右ワイヤー用ボタンをチェック
-        if (GamepadInputManager.Instance.GetButtonDown("GrappleRight"))
+        if (Input.GetButtonDown("Fire5"))
         {
-            TryGrapple(rightGrappleOrigin, ref rightSpringJoint, ref rightGrapplePoint, rightLineRenderer);
+            TryMultipleDirectionGrapple(rightGrappleOrigin, ref rightSpringJoint, ref rightGrapplePoint, rightLineRenderer, rightSwingTarget);
         }
 
-        // GamepadInputManagerを使って左ワイヤー用ボタンをチェック
-        if (GamepadInputManager.Instance.GetButtonDown("GrappleLeft"))
+        if (Input.GetButtonDown("Fire6"))
         {
-            TryGrapple(leftGrappleOrigin, ref leftSpringJoint, ref leftGrapplePoint, leftLineRenderer);
+            TryMultipleDirectionGrapple(leftGrappleOrigin, ref leftSpringJoint, ref leftGrapplePoint, leftLineRenderer, leftSwingTarget);
         }
 
-        // ワイヤー解除
-        if (GamepadInputManager.Instance.GetButtonUp("GrappleRight"))
+        if (Input.GetButtonUp("Fire5"))
         {
-            StopGrapple(ref rightSpringJoint, rightLineRenderer);
+            StopGrapple(ref rightSpringJoint, rightLineRenderer, rightSwingTarget);
         }
-        if (GamepadInputManager.Instance.GetButtonUp("GrappleLeft"))
+
+        if (Input.GetButtonUp("Fire6"))
         {
-            StopGrapple(ref leftSpringJoint, leftLineRenderer);
+            StopGrapple(ref leftSpringJoint, leftLineRenderer, leftSwingTarget);
         }
     }
 
-    // ワイヤー発射処理
-    private void TryGrapple(Transform grappleOrigin, ref SpringJoint springJoint, ref Vector3 grapplePoint, LineRenderer lineRenderer)
+    // スイングの加速力を適用
+    private void ApplySwingForce()
+    {
+        if (rightSpringJoint != null || leftSpringJoint != null)
+        {
+            // 左スティックの入力を基にスイング方向の力を適用
+            float horizontalInput = GamepadInputManager.Instance.GetAxis("MoveHorizontal");
+            float verticalInput = GamepadInputManager.Instance.GetAxis("MoveVertical");
+
+            Vector3 swingDirection = new Vector3(horizontalInput, 0, verticalInput);
+            swingDirection = Camera.main.transform.TransformDirection(swingDirection);
+            swingDirection.y = 0;
+
+            playerRigidbody.AddForce(swingDirection * swingForce, ForceMode.Acceleration);
+
+            // 最大速度を制限
+            if (playerRigidbody.velocity.magnitude > maxSwingSpeed)
+            {
+                playerRigidbody.velocity = playerRigidbody.velocity.normalized * maxSwingSpeed;
+            }
+        }
+    }
+
+    // さまざまな方向にキャストしてグラップル可能なポイントを探す
+    private bool TryMultipleDirectionGrapple(Transform grappleOrigin, ref SpringJoint springJoint, ref Vector3 grapplePoint, LineRenderer lineRenderer, GameObject swingTarget)
+    {
+        return TryGrappleInDirection(grappleOrigin, grappleOrigin.up - grappleOrigin.forward, ref springJoint, ref grapplePoint, lineRenderer, swingTarget) ||
+               TryGrappleInDirection(grappleOrigin, grappleOrigin.up + Camera.main.transform.forward, ref springJoint, ref grapplePoint, lineRenderer, swingTarget) ||
+               TryGrappleInDirection(grappleOrigin, Camera.main.transform.forward - grappleOrigin.forward, ref springJoint, ref grapplePoint, lineRenderer, swingTarget);
+    }
+
+    // 指定した方向にグラップルを試行
+    private bool TryGrappleInDirection(Transform grappleOrigin, Vector3 direction, ref SpringJoint springJoint, ref Vector3 grapplePoint, LineRenderer lineRenderer, GameObject swingTarget)
     {
         RaycastHit hit;
-        // SphereCastを使って近くのオブジェクトを判定
-        if (Physics.SphereCast(grappleOrigin.position, 2f, grappleOrigin.forward, out hit, maxGrappleDistance, grappleLayer))
+
+        if (Physics.SphereCast(grappleOrigin.position, 2f, direction, out hit, maxGrappleDistance, grappleLayer))
         {
-            grapplePoint = hit.point; // ワイヤーの引っ掛かり地点を取得
-            StartGrapple(grappleOrigin, ref springJoint, grapplePoint, lineRenderer);
+            grapplePoint = hit.point;
+            StartGrapple(grappleOrigin, ref springJoint, grapplePoint, lineRenderer, swingTarget);
+            return true;
         }
         else
         {
-            Debug.Log("グラップルポイントが見つかりませんでした。");
+            swingTarget.SetActive(false);
+            return false;
         }
     }
 
-    // グラップルを開始するメソッド
-    private void StartGrapple(Transform grappleOrigin, ref SpringJoint springJoint, Vector3 grapplePoint, LineRenderer lineRenderer)
+    // スイングを開始
+    private void StartGrapple(Transform grappleOrigin, ref SpringJoint springJoint, Vector3 grapplePoint, LineRenderer lineRenderer, GameObject swingTarget)
     {
-        springJoint = gameObject.AddComponent<SpringJoint>(); // SpringJointを追加
-        springJoint.autoConfigureConnectedAnchor = false; // 手動で接続位置を設定
-        springJoint.connectedAnchor = grapplePoint; // ワイヤーの引っ掛かり地点を設定
+        springJoint = gameObject.AddComponent<SpringJoint>();
+        springJoint.autoConfigureConnectedAnchor = false;
+        springJoint.connectedAnchor = grapplePoint;
 
-        float distanceToGrapplePoint = Vector3.Distance(grappleOrigin.position, grapplePoint); // ワイヤーの距離を計算
+        float distanceToGrapplePoint = Vector3.Distance(grappleOrigin.position, grapplePoint);
+        springJoint.maxDistance = distanceToGrapplePoint * maxDistanceFactor;
+        springJoint.minDistance = distanceToGrapplePoint * minDistanceFactor;
+        springJoint.spring = swingSpringForce;
+        springJoint.damper = swingDamper;
+        springJoint.massScale = massScale;
 
-        // SpringJointの設定（スイングの張力などを調整）
-        springJoint.maxDistance = distanceToGrapplePoint * 0.8f; // ワイヤーの最大距離
-        springJoint.minDistance = distanceToGrapplePoint * 0.25f; // ワイヤーの最小距離
-        springJoint.spring = 4.5f;  // スプリングの力（引き寄せる力）
-        springJoint.damper = 7f;    // 減衰力（スイングのスムーズさを調整）
-        springJoint.massScale = 4.5f; // プレイヤーの質量に対する影響を調整
-
-        lineRenderer.positionCount = 2; // ワイヤーの描画のための頂点を設定
+        lineRenderer.positionCount = 2;
+        swingTarget.transform.position = grapplePoint;
+        swingTarget.SetActive(true);
     }
 
-    // グラップルを解除するメソッド
-    private void StopGrapple(ref SpringJoint springJoint, LineRenderer lineRenderer)
+    // スイングを停止
+    private void StopGrapple(ref SpringJoint springJoint, LineRenderer lineRenderer, GameObject swingTarget)
     {
         if (springJoint != null)
         {
-            Destroy(springJoint); // SpringJointを破壊してワイヤーを解除
+            Destroy(springJoint);
         }
-        lineRenderer.positionCount = 0; // ワイヤー描画を停止
+        lineRenderer.positionCount = 0;
+        swingTarget.SetActive(false);
     }
 
-    // ワイヤーの描画処理
+    // ワイヤーの描画
     private void DrawRope()
     {
-        // 右ワイヤーが存在する場合、描画
         if (rightSpringJoint != null)
         {
-            rightLineRenderer.SetPosition(0, rightGrappleOrigin.position); // 始点
-            rightLineRenderer.SetPosition(1, rightGrapplePoint);           // 終点
+            rightLineRenderer.positionCount = 2;
+            rightLineRenderer.SetPosition(0, rightGrappleOrigin.position);
+            rightLineRenderer.SetPosition(1, rightGrapplePoint);
+        }
+        else
+        {
+            rightLineRenderer.positionCount = 0;
         }
 
-        // 左ワイヤーが存在する場合、描画
         if (leftSpringJoint != null)
         {
-            leftLineRenderer.SetPosition(0, leftGrappleOrigin.position);   // 始点
-            leftLineRenderer.SetPosition(1, leftGrapplePoint);             // 終点
+            leftLineRenderer.positionCount = 2;
+            leftLineRenderer.SetPosition(0, leftGrappleOrigin.position);
+            leftLineRenderer.SetPosition(1, leftGrapplePoint);
+        }
+        else
+        {
+            leftLineRenderer.positionCount = 0;
         }
     }
 }
-
-

@@ -35,8 +35,8 @@ public class GamepadInputManager : MonoBehaviour
         buttonMappings = new Dictionary<string, string>
         {
             { "Slide", "Fire1" },
-            { "GrappleRight", "Fire2" },  // 右ワイヤーのボタンを設定
-            { "GrappleLeft", "Fire3" },   // 左ワイヤーのボタンを設定
+            { "GrappleRight", "Fire5" },  // 右ワイヤーのボタンを設定
+            { "GrappleLeft", "Fire6" },   // 左ワイヤーのボタンを設定
             { "Run", "Fire4" }
         };
 

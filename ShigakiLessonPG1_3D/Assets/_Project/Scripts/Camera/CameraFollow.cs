@@ -5,7 +5,7 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Transform player; // プレイヤーのTransform
     [SerializeField] private float mouseSensitivity = 100f; // マウス感度
     [SerializeField] private float normalDistance = 5.0f; // 通常時の距離
-    [SerializeField] private float swingDistance = 8.0f; // スイング中の距離
+    //[SerializeField] private float swingDistance = 8.0f; // スイング中の距離
     [SerializeField] private Vector3 cameraOffset = new Vector3(0, 1.5f, 0); // カメラの位置オフセット
     [SerializeField] private Vector3 lookAtOffset = new Vector3(0, 1.0f, 0); // 注視点のオフセット
     [SerializeField] private float smoothTime = 0.1f; // カメラのスムーズ追従時間

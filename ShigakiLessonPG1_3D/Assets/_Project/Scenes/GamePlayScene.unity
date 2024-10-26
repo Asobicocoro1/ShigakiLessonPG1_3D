@@ -478,6 +478,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1390036633}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1390036636}
   m_SourcePrefab: {fileID: 100100000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
 --- !u!1 &728808446
 GameObject:
@@ -5488,9 +5491,6 @@ PrefabInstance:
       addedObject: {fileID: 1504853440}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1504853448}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1504853447}
   m_SourcePrefab: {fileID: 100100000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
 --- !u!1 &1025960820
@@ -5926,8 +5926,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1390036626}
   serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
+  m_Mass: 80
+  m_Drag: 0.1
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -6024,7 +6024,19 @@ MonoBehaviour:
   maxGrappleDistance: 50
   rightLineRenderer: {fileID: 1638396186}
   leftLineRenderer: {fileID: 1587340588}
-  swingForce: 10
+  swingTargetPrefab: {fileID: 4677667765495727506, guid: f943a575f4e759e46a871c850282d277, type: 3}
+--- !u!114 &1390036636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390036626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a7d72ed8310bfb429db76f5a29e9b04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1403747993
 GameObject:
   m_ObjectHideFlags: 0
@@ -6347,24 +6359,6 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &1504853448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1504853437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0450105a818c5364480db28cec64a48f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grappleOrigin: {fileID: 817149354}
-  lineRenderer: {fileID: 1504853447}
-  grappleLayer:
-    m_Bits: 256
-  maxGrappleDistance: 30
-  playerRigidbody: {fileID: 0}
 --- !u!1 &1587340587
 GameObject:
   m_ObjectHideFlags: 0
@@ -6814,7 +6808,6 @@ MonoBehaviour:
   player: {fileID: 1766010365}
   mouseSensitivity: 200
   normalDistance: 5
-  swingDistance: 8
   cameraOffset: {x: 0, y: 1.5, z: 0}
   lookAtOffset: {x: 0.5, y: 0.5, z: 0}
   smoothTime: 0.05
@@ -6838,12 +6831,12 @@ MonoBehaviour:
   maxGrappleDistance: 50
   rightLineRenderer: {fileID: 1638396186}
   leftLineRenderer: {fileID: 1638396186}
-  swingForce: 10
+  swingTargetPrefab: {fileID: 0}
   cameraTarget: {fileID: 1390036627}
   rightStickSensitivity: 100
   normalDistance: 5
   swingDistance: 8
-  cameraOffset: {x: 0, y: 4, z: -2.5}
+  cameraOffset: {x: 0, y: 4, z: -5}
   smoothTime: 0.1
   zoomSpeed: 2
   lookAtOffset: {x: 0, y: 2.5, z: 0}

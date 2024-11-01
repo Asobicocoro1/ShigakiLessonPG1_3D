@@ -1,133 +1,72 @@
-using System.Collections;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GamepadInputManager : MonoBehaviour
 {
+    // シングルトンインスタンス
     public static GamepadInputManager Instance { get; private set; }
 
-    private Dictionary<string, string> buttonMappings;
-    private Dictionary<string, string> axisMappings;
+    private Dictionary<string, string> buttonMappings; // ボタンマッピング用の辞書
+    private Dictionary<string, string> axisMappings;   // 軸マッピング用の辞書
 
     private void Awake()
     {
+        // インスタンスが未設定なら自身をインスタンスとして保持
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject); // シーンが変わってもオブジェクトを破棄しない
 
+            // 親がある場合は親オブジェクトから分離
             if (transform.parent != null)
             {
                 transform.SetParent(null);
             }
 
-            InitializeDefaultMappings();  // ボタンのデフォルトマッピングを設定
+            InitializeDefaultMappings();  // ボタンと軸のデフォルト設定を初期化
         }
         else
         {
-            Destroy(gameObject);
+            Destroy(gameObject); // インスタンスがすでに存在する場合、重複を防ぐために破棄
         }
     }
 
-    // ボタン・軸マッピングを初期化
+    // ボタンと軸のデフォルトマッピングを設定
     private void InitializeDefaultMappings()
     {
         buttonMappings = new Dictionary<string, string>
         {
-            { "Slide", "Fire1" },
-            { "GrappleRight", "Fire5" },  // 右ワイヤーのボタンを設定
-            { "GrappleLeft", "Fire6" },   // 左ワイヤーのボタンを設定
-            { "Run", "Fire4" }
+            { "GrappleRight", "Fire5" }, // 右ワイヤーのボタン
+            { "GrappleLeft", "Fire6" }   // 左ワイヤーのボタン
         };
 
         axisMappings = new Dictionary<string, string>
         {
-            { "MoveHorizontal", "Horizontal" },
-            { "MoveVertical", "Vertical" },
-            { "LookHorizontal", "RightStickHorizontal" },
-            { "LookVertical", "RightStickVertical" }
+            { "MoveHorizontal", "Horizontal" },            // 移動の横軸
+            { "MoveVertical", "Vertical" },                // 移動の縦軸
+            { "LookHorizontal", "RightStickHorizontal" },  // 視点移動の横軸
+            { "LookVertical", "RightStickVertical" }       // 視点移動の縦軸
         };
     }
 
-    // ボタンが押されたときの入力
+    // ボタンが押された瞬間の取得
     public bool GetButtonDown(string action)
     {
-        if (buttonMappings.ContainsKey(action))
-        {
-            return Input.GetButtonDown(buttonMappings[action]);
-        }
-        else
-        {
-            Debug.LogWarning($"Action '{action}' is not mapped.");
-            return false;
-        }
+        // マッピングされたボタンが存在するか確認して押されたかを取得
+        return buttonMappings.ContainsKey(action) && Input.GetButtonDown(buttonMappings[action]);
     }
 
-    // ボタンが押されているかをチェック
-    public bool GetButton(string action)
-    {
-        if (buttonMappings.ContainsKey(action))
-        {
-            return Input.GetButton(buttonMappings[action]);
-        }
-        else
-        {
-            Debug.LogWarning($"Action '{action}' is not mapped.");
-            return false;
-        }
-    }
-
-    // **新しく追加するメソッド**: ボタンが離されたタイミングをチェック
+    // ボタンが離された瞬間の取得
     public bool GetButtonUp(string action)
     {
-        if (buttonMappings.ContainsKey(action))
-        {
-            return Input.GetButtonUp(buttonMappings[action]);
-        }
-        else
-        {
-            Debug.LogWarning($"Action '{action}' is not mapped.");
-            return false;
-        }
+        // マッピングされたボタンが存在するか確認して離されたかを取得
+        return buttonMappings.ContainsKey(action) && Input.GetButtonUp(buttonMappings[action]);
     }
 
-    // 軸入力を取得
+    // 軸の入力を取得
     public float GetAxis(string action)
     {
-        if (axisMappings.ContainsKey(action))
-        {
-            return Input.GetAxis(axisMappings[action]);
-        }
-        else
-        {
-            Debug.LogWarning($"Axis '{action}' is not mapped.");
-            return 0f;
-        }
-    }
-
-    // ボタンマッピングを設定
-    public void SetButtonMapping(string action, string button)
-    {
-        if (buttonMappings.ContainsKey(action))
-        {
-            buttonMappings[action] = button;
-        }
-        else
-        {
-            buttonMappings.Add(action, button);
-        }
-    }
-
-    // 軸マッピングを設定
-    public void SetAxisMapping(string action, string axis)
-    {
-        if (axisMappings.ContainsKey(action))
-        {
-            axisMappings[action] = axis;
-        }
-        else
-        {
-            axisMappings.Add(action, axis);
-        }
+        // マッピングされた軸が存在する場合、その入力値を返す
+        return axisMappings.ContainsKey(action) ? Input.GetAxis(axisMappings[action]) : 0f;
     }
 }

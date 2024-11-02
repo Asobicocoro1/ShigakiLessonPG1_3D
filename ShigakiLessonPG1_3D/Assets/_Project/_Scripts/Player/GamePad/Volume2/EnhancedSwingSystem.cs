@@ -5,8 +5,8 @@ public class EnhancedSwingSystem : MonoBehaviour
 {
     [Header("Swing Settings")]
     [SerializeField] private float swingForce = 500f;
-    [SerializeField] private float maxSwingSpeed = 30f;
-    [SerializeField] private float springStrength = 300f;
+    private float maxSwingSpeed = 30f;
+    private float springStrength = 300f;
     [SerializeField] private float damping = 5f;
 
     [Header("Wire Visual Settings")]

@@ -12,7 +12,7 @@ public class LockOnManager : MonoBehaviour
 
     private void Update()
     {
-        FindNearestGrapplePoint();
+        GetNearestGrapplePoint();
         UpdateIndicatorPosition();
     }
 

@@ -1,15 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GamepadButtonDebugger : MonoBehaviour
 {
     private void Update()
     {
-        // 1. 各ボタンの押下状態を確認
+        // 各ボタンの押下状態を確認
         CheckButtons();
-
-       
+        
     }
 
     private void CheckButtons()
@@ -22,6 +19,19 @@ public class GamepadButtonDebugger : MonoBehaviour
                 Debug.Log($"Button {i} pressed. (Mapped in Input Manager as 'joystick button {i}')");
             }
         }
+
+        // "Grapple" ボタンの入力チェック
+        if (GamepadInputManager.Instance.GetButtonDown("Grapple"))
+        {
+            Debug.Log("Grapple button pressed via GamepadInputManager.");
+        }
+
+        // "Slide" ボタンの入力チェック
+        if (GamepadInputManager.Instance.GetButtonDown("Slide"))
+        {
+            Debug.Log("Slide button pressed via GamepadInputManager.");
+        }
     }
 
+    
 }

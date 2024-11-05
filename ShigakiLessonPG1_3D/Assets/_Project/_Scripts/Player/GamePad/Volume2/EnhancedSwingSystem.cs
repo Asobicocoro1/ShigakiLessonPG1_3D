@@ -38,11 +38,12 @@ public class EnhancedSwingSystem : MonoBehaviour
     {
         grapplePoint = lockOnManager.CurrentTarget;
 
-        if (grapplePoint != null && Input.GetButtonDown("Grapple"))
+        // GamepadInputManager ‚ðŽg‚Á‚Äƒ{ƒ^ƒ““ü—Í‚ðŽæ“¾
+        if (grapplePoint != null && GamepadInputManager.Instance.GetButtonDown("Grapple"))
         {
             StartSwing();
         }
-        if (Input.GetButtonUp("Grapple"))
+        if (GamepadInputManager.Instance.GetButtonUp("Grapple"))
         {
             StopSwing();
         }

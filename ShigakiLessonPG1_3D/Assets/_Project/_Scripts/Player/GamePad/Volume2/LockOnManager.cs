@@ -33,6 +33,10 @@ public class LockOnManager : MonoBehaviour
         }
 
         currentTarget = nearest;
+        if (currentTarget != null)
+        {
+            Debug.Log($"Locked onto target: {currentTarget.name}");
+        }
         return currentTarget;
     }
 

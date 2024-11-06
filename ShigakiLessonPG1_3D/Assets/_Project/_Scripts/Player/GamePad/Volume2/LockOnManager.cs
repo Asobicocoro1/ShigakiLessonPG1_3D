@@ -44,10 +44,20 @@ public class LockOnManager : MonoBehaviour
     {
         if (currentTarget != null)
         {
-            indicator.position = currentTarget.position + Vector3.up * 2;
-            indicator.gameObject.SetActive(true);
+            if (indicator != null)
+            {
+                // 位置とスケールの調整
+                indicator.position = currentTarget.position + Vector3.up * 1.5f;
+                indicator.localScale = Vector3.one * 0.03f; // 必要に応じて調整
 
-            // インジケーターがカメラの方向を向くように調整
+                indicator.gameObject.SetActive(true);
+                Debug.Log($"Indicator activated at position: {indicator.position}");
+            }
+            else
+            {
+                Debug.LogWarning("Indicator is not assigned in LockOnManager");
+            }
+
             Camera mainCamera = Camera.main;
             if (mainCamera != null)
             {
@@ -56,7 +66,12 @@ public class LockOnManager : MonoBehaviour
         }
         else
         {
-            indicator.gameObject.SetActive(false);
+            if (indicator != null)
+            {
+                indicator.gameObject.SetActive(false);
+                Debug.Log("Indicator deactivated");
+            }
         }
     }
+
 }

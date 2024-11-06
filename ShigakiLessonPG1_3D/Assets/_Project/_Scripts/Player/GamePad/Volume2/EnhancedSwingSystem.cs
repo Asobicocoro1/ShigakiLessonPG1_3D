@@ -4,10 +4,10 @@ using UnityEngine;
 public class EnhancedSwingSystem : MonoBehaviour
 {
     [Header("Swing Settings")]
-    [SerializeField] private float swingForce = 500f;
+    [SerializeField] private float swingForce = 30000f;
     private float maxSwingSpeed = 30f;
-    private float springStrength = 300f;
-    [SerializeField] private float damping = 5f;
+    private float springStrength = 900f;
+    [SerializeField] private float damping = 7f;
 
     [Header("Wire Visual Settings")]
     [SerializeField] private Color wireColor = Color.yellow;
@@ -67,8 +67,8 @@ public class EnhancedSwingSystem : MonoBehaviour
             swingJoint.damper = damping;
 
             float distance = Vector3.Distance(transform.position, grapplePoint.position);
-            swingJoint.maxDistance = distance * 1.3f;
-            swingJoint.minDistance = distance * 0.7f;
+            swingJoint.maxDistance = distance * 0.8f;
+            swingJoint.minDistance = distance * 0.2f;
 
             lineRenderer.positionCount = 2;
             lineRenderer.enabled = true;

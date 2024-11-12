@@ -1,79 +1,89 @@
 using UnityEngine;
+using System;
+using System.Linq;
 
 public class LockOnManager : MonoBehaviour
 {
-    [SerializeField] private LayerMask grappleLayer;    // グラップルポイントのレイヤー
-    [SerializeField] private float lockOnRange = 50f;   // ロックオン可能な範囲
-    [SerializeField] private Transform indicator;       // ロックオン状態を示すインジケーター（UIなど）
+    [SerializeField] private LayerMask grappleLayer;
+    [SerializeField] private float lockOnRange = 50f;
+    [SerializeField] private RectTransform indicator;
+    [SerializeField] private Vector2 indicatorSize = new Vector2(50f, 50f);
+    public RectTransform Indicator => indicator;
 
-    private Transform currentTarget; // 現在のロックオン対象
+    private Transform currentTarget;
+    private Transform lastTarget;
+    private bool isSwinging = false;
 
-    public Transform CurrentTarget => currentTarget;    // 現在のロックオン対象を外部から取得できるように公開
+    public Transform CurrentTarget => currentTarget;
+
+    // ターゲット変更イベント
+    public event Action<Transform> OnTargetChanged;
 
     private void Update()
     {
-        GetNearestGrapplePoint(); // 最も近いグラップルポイントを取得
-        UpdateIndicatorPosition(); // インジケーターの位置を更新
-    }
-
-    public Transform GetNearestGrapplePoint()
-    {
-        // 現在の位置を中心にロックオン範囲内のグラップルポイントを取得
-        Collider[] grapplePoints = Physics.OverlapSphere(transform.position, lockOnRange, grappleLayer);
-        float closestDistance = Mathf.Infinity; // 初期値は無限大
-        Transform nearest = null; // 最も近いポイントを格納するための変数
-
-        foreach (var point in grapplePoints)
+        if (!isSwinging)
         {
-            // 各ポイントとの距離を計算
-            float distance = Vector3.Distance(transform.position, point.transform.position);
-            if (distance < closestDistance)
+            var newTarget = GetNearestGrapplePointExcluding(lastTarget);
+            if (newTarget != currentTarget)
             {
-                closestDistance = distance; // より近い距離を更新
-                nearest = point.transform; // 最も近いポイントを更新
+                currentTarget = newTarget;
+                OnTargetChanged?.Invoke(currentTarget); // ターゲット変更を通知
             }
         }
 
-        currentTarget = nearest; // 最も近いターゲットを設定
-        if (currentTarget != null)
+        UpdateIndicatorPosition();
+    }
+
+    public Transform GetNearestGrapplePointExcluding(Transform excludedPoint)
+    {
+        Collider[] grapplePoints = Physics.OverlapSphere(transform.position, lockOnRange, grappleLayer);
+
+        var sortedPoints = grapplePoints
+            .Select(point => new { Transform = point.transform, Distance = Vector3.Distance(transform.position, point.transform.position) })
+            .OrderBy(x => x.Distance)
+            .ToList();
+
+        foreach (var point in sortedPoints)
         {
-            Debug.Log($"Locked onto target: {currentTarget.name}"); // デバッグログにロックオン対象の名前を出力
+            if (point.Transform != excludedPoint)
+            {
+                return point.Transform;
+            }
         }
-        return currentTarget; // ロックオン対象を返す
+
+        return null;
+    }
+
+    public void SetSwinging(bool swinging)
+    {
+        isSwinging = swinging;
+        if (!swinging && currentTarget != null)
+        {
+            lastTarget = currentTarget;
+        }
     }
 
     private void UpdateIndicatorPosition()
     {
-        if (currentTarget != null)
+        if (indicator != null)
         {
-            if (indicator != null)
+            if (currentTarget != null)
             {
-                // インジケーターの位置をターゲットの少し上に設定
-                indicator.position = currentTarget.position + Vector3.up * 1.5f;
-                // インジケーターのサイズを設定（必要に応じて調整）
-                indicator.localScale = Vector3.one * 0.03f;
+                Vector3 screenPos = Camera.main.WorldToScreenPoint(currentTarget.position + Vector3.up * 1.5f);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    indicator.parent as RectTransform,
+                    screenPos,
+                    Camera.main,
+                    out Vector2 localPoint
+                );
 
-                indicator.gameObject.SetActive(true); // インジケーターを表示
-                Debug.Log($"Indicator activated at position: {indicator.position}"); // デバッグログで位置を確認
+                indicator.localPosition = localPoint;
+                indicator.sizeDelta = indicatorSize;
+                indicator.gameObject.SetActive(true);
             }
             else
             {
-                Debug.LogWarning("Indicator is not assigned in LockOnManager"); // インジケーターが未設定の場合の警告
-            }
-
-            // カメラの方向にインジケーターを向ける
-            Camera mainCamera = Camera.main;
-            if (mainCamera != null)
-            {
-                indicator.LookAt(mainCamera.transform); // カメラを注視するように回転
-            }
-        }
-        else
-        {
-            if (indicator != null)
-            {
-                indicator.gameObject.SetActive(false); // ターゲットがない場合はインジケーターを非表示
-                Debug.Log("Indicator deactivated"); // デバッグログで非表示を確認
+                indicator.gameObject.SetActive(false);
             }
         }
     }

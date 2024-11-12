@@ -2,34 +2,38 @@ using UnityEngine;
 
 public class ChanceCircle : MonoBehaviour
 {
-    [SerializeField] private GameObject chanceCirclePrefab; // チャンスサークルのプレハブ
-    private LockOnManager lockOnManager; // LockOnManager（ターゲット管理クラス）
-    private GameObject activeCircle; // アクティブなチャンスサークル
+    [SerializeField] private GameObject chanceCirclePrefab;
+    private LockOnManager lockOnManager;
+    private GameObject activeCircle;
 
     private void Start()
     {
-        // LockOnManagerをシーン内から検索して取得
         lockOnManager = FindObjectOfType<LockOnManager>();
-
-        // チャンスサークルのインスタンスを作成し、非表示に設定
         activeCircle = Instantiate(chanceCirclePrefab);
         activeCircle.SetActive(false);
+
+        // LockOnManagerのターゲット変更イベントを購読
+        lockOnManager.OnTargetChanged += UpdateChanceCircle;
     }
 
-    private void Update()
+    private void OnDestroy()
     {
-        // 現在のターゲットを取得
-        Transform target = lockOnManager.CurrentTarget;
-
-        if (target != null)
+        // イベント購読解除
+        if (lockOnManager != null)
         {
-            // ターゲットが存在する場合、チャンスサークルをターゲットの位置に設定し表示
-            activeCircle.transform.position = target.position;
+            lockOnManager.OnTargetChanged -= UpdateChanceCircle;
+        }
+    }
+
+    private void UpdateChanceCircle(Transform newTarget)
+    {
+        if (newTarget != null)
+        {
+            activeCircle.transform.position = newTarget.position;
             activeCircle.SetActive(true);
         }
         else
         {
-            // ターゲットが存在しない場合、チャンスサークルを非表示
             activeCircle.SetActive(false);
         }
     }

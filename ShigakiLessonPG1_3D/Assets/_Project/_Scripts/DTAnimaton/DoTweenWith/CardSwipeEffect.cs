@@ -11,6 +11,10 @@ namespace WithDOTween
         public float swipeDistance = 500f;
         public float swipeDuration = 0.5f;
 
+        public void Start()
+        {
+            SwipeLeft();
+        }
         public void SwipeLeft()
         {
             card.DOAnchorPosX(-swipeDistance, swipeDuration)

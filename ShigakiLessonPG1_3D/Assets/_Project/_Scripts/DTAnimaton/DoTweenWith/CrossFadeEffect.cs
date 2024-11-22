@@ -11,6 +11,11 @@ namespace WithDOTween
         public CanvasGroup nextUI;
         public float fadeDuration = 0.5f;
 
+        public void Start()
+        {
+            CrossFade();
+        }
+
         public void CrossFade()
         {
             currentUI.DOFade(0f, fadeDuration);

@@ -17,3 +17,14 @@ namespace WithDOTween
         }
     }
 }
+/*ボタンで色変更をトリガーする:
+Buttonを使用している場合、クリック時に色を変えることもできます。
+ButtonのOn Click()イベントにColorChangeEffectのメソッドを設定。
+
+ インタラクティブな色変更
+ボタンのホバー時に色を変える: ボタンのEvent Triggerを使用して、ホバーやクリック時に異なる色を適用できます。
+2. Easeのカスタマイズ
+DOTweenを使用している場合、色変更にEaseを適用して変化を滑らかにできます。
+
+参考スクリプト
+image.DOColor(endColor, colorDuration).SetEase(Ease.InOutSine);*/

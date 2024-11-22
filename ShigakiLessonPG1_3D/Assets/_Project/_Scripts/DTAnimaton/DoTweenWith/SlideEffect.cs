@@ -19,4 +19,20 @@ namespace WithDOTween
         }
     }
 }
+/*
+ 1. スライドアウトの追加
+スライドイン後、ボタン押下などのトリガーでスライドアウトするアニメーションを追加することも可能です。
 
+csharp
+コードをコピーする
+public void SlideOut()
+{
+    rectTransform.DOAnchorPos(startPos, slideDuration); // 開始位置へ戻る
+}
+2. Easeの設定
+DOTweenを使う場合、Easeを設定することでアニメーションの動きにメリハリを加えられます。
+
+csharp
+コードをコピーする
+rectTransform.DOAnchorPos(endPos, slideDuration).SetEase(Ease.OutBounce);
+ */
